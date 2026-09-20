@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trailing_Progress_Indicator</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #f5f5f5; }
+
+  .trailing-progress {
+    width: 89px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+
+  .trailing-progress__dot-completed {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background-color: #CEE5A7;
+    flex-shrink: 0;
+  }
+
+  .trailing-progress__line-completed {
+    width: 25px;
+    height: 4px;
+    background-color: #CEE5A7;
+    flex-shrink: 0;
+  }
+
+  .trailing-progress__symbol {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #CEE5A7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Display', system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: #415925;
+    line-height: 1;
+    flex-shrink: 0;
+    z-index: 1;
+  }
+</style>
+</head>
+<body>
+  <div class="trailing-progress">
+    <div class="trailing-progress__dot-completed"></div>
+    <div class="trailing-progress__line-completed"></div>
+    <div class="trailing-progress__symbol">3</div>
+  </div>
+</body>
+</html>

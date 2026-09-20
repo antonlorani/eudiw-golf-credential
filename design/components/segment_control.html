@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Segment_Control</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background: #f5f5f5; gap: 24px; }
+
+  .segment-control {
+    width: 342px;
+    height: 41px;
+    border-radius: 20.5px;
+    background-color: #E6F0D7;
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    position: relative;
+  }
+
+  .segment-control__option {
+    width: 162px;
+    height: 33px;
+    border-radius: 16.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Display', system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 15px;
+    color: #3C3C3C;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  .segment-control__option.active {
+    background-color: #FFFFFF;
+  }
+
+  .segment-control__spacer {
+    flex: 1;
+  }
+</style>
+</head>
+<body>
+  <!-- State A: "Golf courses" selected -->
+  <div class="segment-control" data-selected="a">
+    <button class="segment-control__option active">Golf courses</button>
+    <span class="segment-control__spacer"></span>
+    <button class="segment-control__option">Tournaments</button>
+  </div>
+
+  <!-- State B: "Tournaments" selected -->
+  <div class="segment-control" data-selected="b">
+    <button class="segment-control__option">Golf courses</button>
+    <span class="segment-control__spacer"></span>
+    <button class="segment-control__option active">Tournaments</button>
+  </div>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SelectableItem_Symbol</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #f5f5f5; gap: 24px; }
+
+  .selectable-item-symbol {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid #C9C9C9;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .selectable-item-symbol .inner-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: #C9C9C9;
+    border: 2px solid #C9C9C9;
+    display: none;
+  }
+
+  .selectable-item-symbol.selected .inner-dot {
+    display: block;
+  }
+</style>
+</head>
+<body>
+  <button class="selectable-item-symbol" aria-label="Deselected">
+    <span class="inner-dot"></span>
+  </button>
+  <button class="selectable-item-symbol selected" aria-label="Selected">
+    <span class="inner-dot"></span>
+  </button>
+</body>
+</html>

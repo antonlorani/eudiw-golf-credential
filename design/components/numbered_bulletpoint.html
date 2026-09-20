@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Numbered_BulletPoint</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #f5f5f5; }
+
+  .numbered-bulletpoint {
+    width: 318px;
+    height: 65px;
+    display: flex;
+    align-items: flex-start;
+  }
+
+  .numbered-bulletpoint__symbol {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #CEE5A7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Display', system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: #415925;
+    line-height: 1;
+  }
+
+  .numbered-bulletpoint__text {
+    margin-left: 12px;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Display', system-ui, sans-serif;
+    font-weight: 500;
+    font-size: 17px;
+    color: #3C3C3C;
+    line-height: normal;
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+  }
+</style>
+</head>
+<body>
+  <div class="numbered-bulletpoint">
+    <div class="numbered-bulletpoint__symbol">1</div>
+    <span class="numbered-bulletpoint__text">Text</span>
+  </div>
+</body>
+</html>

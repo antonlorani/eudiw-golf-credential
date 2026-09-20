@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leading_Progress_Indicator</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #f5f5f5; }
+
+  .leading-progress {
+    width: 89px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+
+  .leading-progress__symbol {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #CEE5A7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Display', system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: #415925;
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+  }
+
+  .leading-progress__line {
+    width: 25px;
+    height: 4px;
+    background-color: #FFFFFF;
+    flex-shrink: 0;
+  }
+
+  .leading-progress__dot {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background-color: #FFFFFF;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+  <div class="leading-progress">
+    <div class="leading-progress__symbol">1</div>
+    <div class="leading-progress__line"></div>
+    <div class="leading-progress__dot"></div>
+  </div>
+</body>
+</html>
