@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${config.headline}">EUDIW EAA Demo</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+  <div class="page page--green">
+
+    <div class="page__content">
+      <h1 th:replace="~{fragments/components :: headline(${config.headline})}">Headline</h1>
+
+      <div th:replace="~{fragments/components :: bulletpointList(${config.steps})}">Bulletpoint List</div>
+    </div>
+
+    <div class="page__actions">
+      <a th:replace="~{fragments/components :: ctaButton(${config.primaryButtonLabel}, '/demo')}">Start</a>
+    </div>
+
+    <footer th:replace="~{fragments/components :: mobileFooter(${config.footerText})}">Footer</footer>
+
+  </div>
+</body>
+</html>

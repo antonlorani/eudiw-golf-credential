@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${config.headline}">Make A Booking</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+  <div class="page page--green">
+
+    <div class="page__content">
+      <div th:replace="~{fragments/components :: midProgress(2)}">Progress</div>
+
+      <h1 th:replace="~{fragments/components :: headline(${config.headline})}">Headline</h1>
+
+      <div th:replace="~{fragments/components :: segmentControl(${config.segmentLabels})}">Segment Control</div>
+
+      <!-- Golf Courses List -->
+      <div id="golf-courses" style="width: 100%;">
+        <th:block th:each="course : ${config.golfCourses}">
+          <div th:replace="~{fragments/components :: golfCourseItem(${course})}">Golf Course</div>
+        </th:block>
+      </div>
+
+      <!-- Tournaments List -->
+      <div id="tournaments" style="width: 100%; display: none;">
+        <th:block th:each="tournament : ${config.tournaments}">
+          <div th:replace="~{fragments/components :: tournamentItem(${tournament})}">Tournament</div>
+        </th:block>
+      </div>
+    </div>
+
+    <div class="page__actions">
+      <form method="post" th:action="@{/demo(session=${sessionId})}" style="width: 100%;">
+        <input type="hidden" name="selection" id="selection-input">
+        <button type="submit" class="cta-button" th:text="${config.primaryButtonLabel}">Continue</button>
+      </form>
+    </div>
+
+    <footer th:replace="~{fragments/components :: mobileFooter(${config.footerText})}">Footer</footer>
+
+  </div>
+
+  <script>
+    function selectSegment(button, sectionId) {
+      document.querySelectorAll('.segment-control__option').forEach(function(opt) {
+        opt.classList.remove('active');
+      });
+      button.classList.add('active');
+
+      document.getElementById('golf-courses').style.display = sectionId === 'golf-courses' ? '' : 'none';
+      document.getElementById('tournaments').style.display = sectionId === 'tournaments' ? '' : 'none';
+    }
+
+    function selectItem(element, className) {
+      document.querySelectorAll('.' + className).forEach(function(item) {
+        item.classList.remove('selected');
+      });
+      element.classList.add('selected');
+      var title = element.querySelector('.' + className + '__title');
+      if (title) {
+        document.getElementById('selection-input').value = title.textContent;
+      }
+    }
+  </script>
+</body>
+</html>

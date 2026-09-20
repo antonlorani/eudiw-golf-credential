@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- ── Headline ──────────────────────────────────────────── -->
+
+<h1 th:fragment="headline(text)"
+    class="headline"
+    th:text="${text}">Headline</h1>
+
+
+<!-- ── Info Text ─────────────────────────────────────────── -->
+
+<p th:fragment="infoText(text)"
+   class="info-text"
+   th:text="${text}">Info text goes here.</p>
+
+
+<!-- ── Bulletpoint List ──────────────────────────────────── -->
+
+<div th:fragment="bulletpointList(steps)" class="bulletpoint-list">
+  <div class="bulletpoint-list__item" th:each="step : ${steps}">
+    <div class="bulletpoint-list__symbol" th:text="${step.number}">1</div>
+    <span class="bulletpoint-list__text" th:text="${step.text}">Step text</span>
+  </div>
+</div>
+
+
+<!-- ── Leading Progress Indicator (step 1 of 3) ──────────── -->
+
+<div th:fragment="leadingProgress(step)" class="progress-indicator">
+  <div class="progress-indicator__symbol" th:text="${step}">1</div>
+  <div class="progress-indicator__line progress-indicator__line--pending"></div>
+  <div class="progress-indicator__dot progress-indicator__dot--pending"></div>
+</div>
+
+
+<!-- ── Mid Progress Indicator (step 2 of 3) ──────────────── -->
+
+<div th:fragment="midProgress(step)" class="progress-indicator">
+  <div class="progress-indicator__dot progress-indicator__dot--completed"></div>
+  <div class="progress-indicator__line progress-indicator__line--completed"></div>
+  <div class="progress-indicator__symbol" th:text="${step}">2</div>
+  <div class="progress-indicator__line progress-indicator__line--pending"></div>
+  <div class="progress-indicator__dot progress-indicator__dot--pending"></div>
+</div>
+
+
+<!-- ── Trailing Progress Indicator (step 3 of 3) ─────────── -->
+
+<div th:fragment="trailingProgress(step)" class="progress-indicator">
+  <div class="progress-indicator__dot progress-indicator__dot--completed"></div>
+  <div class="progress-indicator__line progress-indicator__line--completed"></div>
+  <div class="progress-indicator__symbol" th:text="${step}">3</div>
+</div>
+
+
+<!-- ── Segment Control ───────────────────────────────────── -->
+
+<div th:fragment="segmentControl(labels)" class="segment-control">
+  <button class="segment-control__option active"
+          th:text="${labels[0]}"
+          onclick="selectSegment(this, 'golf-courses')">Golf courses</button>
+  <span class="segment-control__spacer"></span>
+  <button class="segment-control__option"
+          th:text="${labels[1]}"
+          onclick="selectSegment(this, 'tournaments')">Tournaments</button>
+</div>
+
+
+<!-- ── Golf Course Item ──────────────────────────────────── -->
+
+<div th:fragment="golfCourseItem(course)" class="golfcourse-item" onclick="selectItem(this, 'golfcourse-item')">
+  <div class="selectable-radio">
+    <div class="selectable-radio__inner"></div>
+  </div>
+  <div class="golfcourse-item__content">
+    <span class="golfcourse-item__title" th:text="${course.name}">Course Name</span>
+    <span class="golfcourse-item__subtitle" th:text="${course.hcpRequirement}">HCP requirement</span>
+  </div>
+</div>
+
+
+<!-- ── Tournament Item ───────────────────────────────────── -->
+
+<div th:fragment="tournamentItem(tournament)" class="tournament-item" onclick="selectItem(this, 'tournament-item')">
+  <div class="selectable-radio">
+    <div class="selectable-radio__inner"></div>
+  </div>
+  <div class="tournament-item__content">
+    <span class="tournament-item__title" th:text="${tournament.name}">Tournament Name</span>
+    <span class="tournament-item__location" th:text="${tournament.location}">Location</span>
+    <span class="tournament-item__requirement" th:text="${tournament.hcpRequirement}">HCP requirement</span>
+  </div>
+</div>
+
+
+<!-- ── Credential Item ───────────────────────────────────── -->
+
+<div th:fragment="credentialItem(credential)" class="credential-item" onclick="selectItem(this, 'credential-item')">
+  <div class="selectable-radio">
+    <div class="selectable-radio__inner"></div>
+  </div>
+  <div class="credential-item__content">
+    <span class="credential-item__title" th:text="${credential.title}">Credential</span>
+    <span class="credential-item__subtitle" th:text="${credential.subtitle}">Details</span>
+  </div>
+</div>
+
+
+<!-- ── CTA Button (primary green) ────────────────────────── -->
+
+<a th:fragment="ctaButton(label, href)"
+   class="cta-button"
+   th:text="${label}"
+   th:href="${href}">Button</a>
+
+
+<!-- ── CTA Button (blue) ─────────────────────────────────── -->
+
+<a th:fragment="blueCtaButton(label, href)"
+   class="blue-cta-button"
+   th:text="${label}"
+   th:href="${href}">Button</a>
+
+
+<!-- ── Secondary CTA Button ──────────────────────────────── -->
+
+<a th:fragment="secondaryCtaButton(label, href)"
+   class="secondary-cta-button"
+   th:text="${label}"
+   th:href="${href}">Button</a>
+
+
+<!-- ── Checkmark Symbol ──────────────────────────────────── -->
+
+<div th:fragment="checkmarkSymbol" class="checkmark-symbol result-symbol">
+  <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M8 20.5L16 28.5L32 12.5" stroke="#415925" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</div>
+
+
+<!-- ── XMark Symbol ──────────────────────────────────────── -->
+
+<div th:fragment="xmarkSymbol" class="xmark-symbol result-symbol">
+  <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M8 8L28 28M28 8L8 28" stroke="#592525" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</div>
+
+
+<!-- ── Mobile Footer ─────────────────────────────────────── -->
+
+<footer th:fragment="mobileFooter(text)"
+        class="mobile-footer"
+        th:text="${text}">&copy; 2026 Anton Lorani</footer>
+
+</html>

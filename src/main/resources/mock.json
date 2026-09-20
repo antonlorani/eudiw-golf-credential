@@ -1,0 +1,66 @@
+{
+  "landing": {
+    "headline": "EUDIW EAA Demo",
+    "steps": [
+      { "number": 1, "text": "Issue a golf membership credential into your EUDI Wallet" },
+      { "number": 2, "text": "Select a golf course or tournament" },
+      { "number": 3, "text": "Verify your HCP through your EUDI Wallet" },
+      { "number": 4, "text": "Will the credential be accepted as proof?" }
+    ],
+    "primaryButtonLabel": "Start",
+    "footerText": "© 2026 Anton Lorani"
+  },
+  "issueCredential": {
+    "headline": "Issue A Credential",
+    "infoText": "Leads through the OID4VCI flow and lets you issue a demo credential into your EUDI Wallet.",
+    "secondaryButtonLabel": "Offer Credential to EUDI Wallet",
+    "primaryButtonLabel": "Continue",
+    "footerText": "© 2026 Anton Lorani"
+  },
+  "booking": {
+    "headline": "Make A Booking",
+    "segmentLabels": ["Golf courses", "Tournaments"],
+    "golfCourses": [
+      { "name": "Royal St. Andrews Links", "hcpRequirement": "HCP requirement <= 24" },
+      { "name": "Muirfield Golf Club", "hcpRequirement": "HCP requirement <= 18" },
+      { "name": "Carnoustle Championship", "hcpRequirement": "HCP requirement <= 12" }
+    ],
+    "tournaments": [
+      { "name": "Summer Open 2026", "location": "Royal St Andrews Links", "hcpRequirement": "HCP requirement <= 18" },
+      { "name": "Club Championship", "location": "Muirfield Golf Club", "hcpRequirement": "HCP requirement <= 24" },
+      { "name": "Invitational Pro-Am", "location": "Carnoustle Championship", "hcpRequirement": "HCP requirement <= 6" }
+    ],
+    "primaryButtonLabel": "Continue",
+    "footerText": "© 2026 Anton Lorani"
+  },
+  "authorizeCredential": {
+    "headline": "Select A Credential",
+    "infoText": "Practically this page represents the national golf association that officially issues your personal HCP score.",
+    "credentials": [
+      { "title": "High HCP", "subtitle": "John Doe | 2026" },
+      { "title": "Low HCP", "subtitle": "John Doe | 2026" },
+      { "title": "Expired Credential", "subtitle": "John Doe | 2026" },
+      { "title": "Spoofed Credential", "subtitle": "John Doe | 2026" }
+    ],
+    "primaryButtonLabel": "Authorize",
+    "footerText": "© 2026 Anton Lorani"
+  },
+  "verifyHcp": {
+    "headline": "Verify Your HCP",
+    "infoText": "Leads through the OID4VP flow and requests a HCP credential from your EUDI Wallet.",
+    "secondaryButtonLabel": "Verify with EUDI Wallet",
+    "footerText": "© 2026 Anton Lorani"
+  },
+  "success": {
+    "headline": "Let’s Golf!",
+    "secondaryButtonLabel": "View on Github",
+    "primaryButtonLabel": "Restart",
+    "footerText": "© 2026 Anton Lorani"
+  },
+  "failure": {
+    "headline": "Credential Expired",
+    "secondaryButtonLabel": "View on Github",
+    "primaryButtonLabel": "Restart",
+    "footerText": "© 2026 Anton Lorani"
+  }
+}

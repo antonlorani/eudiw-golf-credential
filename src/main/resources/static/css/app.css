@@ -1,0 +1,493 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Display', system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+/* ── Page Layout ─────────────────────────────────────────── */
+
+.page {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 24px 16px;
+}
+
+.page--green  { background-color: #EDEBDD; }
+.page--blue   { background-color: #D8E2F5; }
+
+.page__content {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: auto;
+}
+
+.page__actions {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  margin-bottom: auto;
+}
+
+/* ── Headline ────────────────────────────────────────────── */
+
+.headline {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 32px;
+  color: #3C3C3C;
+  line-height: 1;
+  text-align: center;
+}
+
+/* ── Info Text ───────────────────────────────────────────── */
+
+.info-text {
+  max-width: 266px;
+  width: 100%;
+  font-weight: 500;
+  font-size: 17px;
+  color: #3C3C3C;
+  text-align: center;
+  line-height: normal;
+  margin-top: 12px;
+}
+
+/* ── Numbered Symbol ─────────────────────────────────────── */
+
+.numbered-symbol {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #CEE5A7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 20px;
+  color: #415925;
+  line-height: 1;
+}
+
+/* ── Bulletpoint List ────────────────────────────────────── */
+
+.bulletpoint-list {
+  width: 100%;
+  background-color: #FFFFFF;
+  border-radius: 20px;
+  padding: 20px 12px 0 12px;
+  margin-top: 24px;
+}
+
+.bulletpoint-list__item {
+  width: 100%;
+  height: 65px;
+  display: flex;
+  align-items: flex-start;
+}
+
+.bulletpoint-list__symbol {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #CEE5A7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 20px;
+  color: #415925;
+  line-height: 1;
+}
+
+.bulletpoint-list__text {
+  margin-left: 12px;
+  font-weight: 500;
+  font-size: 17px;
+  color: #3C3C3C;
+  line-height: normal;
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+}
+
+/* ── Progress Indicators ─────────────────────────────────── */
+
+.progress-indicator {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.progress-indicator__dot {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.progress-indicator__line {
+  width: 25px;
+  height: 4px;
+  flex-shrink: 0;
+}
+
+.progress-indicator__dot--completed { background-color: #CEE5A7; }
+.progress-indicator__dot--pending   { background-color: #FFFFFF; }
+.progress-indicator__line--completed { background-color: #CEE5A7; }
+.progress-indicator__line--pending   { background-color: #FFFFFF; }
+
+.progress-indicator__symbol {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #CEE5A7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 20px;
+  color: #415925;
+  line-height: 1;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+/* ── Segment Control ─────────────────────────────────────── */
+
+.segment-control {
+  width: 100%;
+  height: 41px;
+  border-radius: 20.5px;
+  background-color: #E6F0D7;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  margin-top: 12px;
+}
+
+.segment-control__option {
+  flex: 1;
+  height: 33px;
+  border-radius: 16.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-weight: 400;
+  font-size: 15px;
+  color: #3C3C3C;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  line-height: 1;
+  transition: background-color 0.2s ease;
+}
+
+.segment-control__option.active {
+  background-color: #FFFFFF;
+}
+
+.segment-control__spacer {
+  width: 8px;
+  flex-shrink: 0;
+}
+
+/* ── Selectable Item (shared radio) ──────────────────────── */
+
+.selectable-radio {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid #C9C9C9;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.selectable-radio__inner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #C9C9C9;
+  border: 2px solid #C9C9C9;
+  display: none;
+}
+
+/* ── Golf Course Item ────────────────────────────────────── */
+
+.golfcourse-item {
+  width: 100%;
+  height: 64px;
+  border-radius: 20px;
+  background-color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.golfcourse-item.selected .selectable-radio__inner { display: block; }
+
+.golfcourse-item__content {
+  margin-left: 17px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.golfcourse-item__title {
+  font-weight: 500;
+  font-size: 15px;
+  color: #3C3C3C;
+  line-height: 18px;
+}
+
+.golfcourse-item__subtitle {
+  font-weight: 500;
+  font-size: 12px;
+  color: #848383;
+  line-height: 14px;
+  margin-top: 2px;
+}
+
+/* ── Tournament Item ─────────────────────────────────────── */
+
+.tournament-item {
+  width: 100%;
+  height: 73px;
+  border-radius: 20px;
+  background-color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.tournament-item.selected .selectable-radio__inner { display: block; }
+
+.tournament-item__content {
+  margin-left: 17px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.tournament-item__title {
+  font-weight: 500;
+  font-size: 15px;
+  color: #3C3C3C;
+  line-height: 18px;
+}
+
+.tournament-item__location {
+  font-weight: 600;
+  font-size: 12px;
+  color: #848383;
+  line-height: 14px;
+  margin-top: 2px;
+}
+
+.tournament-item__requirement {
+  font-weight: 500;
+  font-size: 12px;
+  color: #848383;
+  line-height: 14px;
+  margin-top: 4px;
+}
+
+/* ── Credential Item ─────────────────────────────────────── */
+
+.credential-item {
+  width: 100%;
+  height: 64px;
+  border-radius: 20px;
+  background-color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.credential-item.selected .selectable-radio__inner { display: block; }
+
+.credential-item__content {
+  margin-left: 17px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.credential-item__title {
+  font-weight: 500;
+  font-size: 15px;
+  color: #3C3C3C;
+  line-height: 18px;
+}
+
+.credential-item__subtitle {
+  font-weight: 500;
+  font-size: 12px;
+  color: #848383;
+  line-height: 14px;
+  margin-top: 2px;
+}
+
+/* ── CTA Buttons ─────────────────────────────────────────── */
+
+.cta-button {
+  width: 100%;
+  height: 48px;
+  border-radius: 37px;
+  background-color: #CEE5A7;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 17px;
+  color: #000000;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.blue-cta-button {
+  width: 100%;
+  height: 48px;
+  border-radius: 37px;
+  background-color: #A7BDE5;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 17px;
+  color: #000000;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.secondary-cta-button {
+  width: 100%;
+  height: 48px;
+  border-radius: 37px;
+  background-color: #D1D1D1;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 17px;
+  color: #252525;
+  line-height: 1;
+  text-decoration: none;
+}
+
+/* ── Checkmark Symbol ────────────────────────────────────── */
+
+.checkmark-symbol {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #CEE5A7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkmark-symbol svg {
+  width: 40px;
+  height: 40px;
+}
+
+/* ── XMark Symbol ────────────────────────────────────────── */
+
+.xmark-symbol {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #D84C4C;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.xmark-symbol svg {
+  width: 36px;
+  height: 36px;
+}
+
+/* ── Result Symbol Animation ─────────────────────────────── */
+
+@keyframes symbol-pop {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+@keyframes stroke-draw {
+  0%   { stroke-dashoffset: 50; }
+  100% { stroke-dashoffset: 0; }
+}
+
+.result-symbol {
+  animation: symbol-pop 0.4s ease-out forwards;
+}
+
+.result-symbol svg path {
+  stroke-dasharray: 50;
+  stroke-dashoffset: 50;
+  animation: stroke-draw 0.4s ease-out 0.2s forwards;
+}
+
+/* ── Mobile Footer ───────────────────────────────────────── */
+
+.mobile-footer {
+  width: 100%;
+  max-width: 480px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  font-size: 15px;
+  color: #3C3C3C;
+  line-height: 1;
+}
+
+/* ── Result Page Center Layout ───────────────────────────── */
+
+.result-center {
+  width: 100%;
+  max-width: 480px;
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}

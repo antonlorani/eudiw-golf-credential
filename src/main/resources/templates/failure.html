@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${config.headline}">Credential Expired</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+  <div class="page page--green">
+
+    <div class="result-center">
+      <div th:replace="~{fragments/components :: xmarkSymbol}">XMark</div>
+      <h1 th:replace="~{fragments/components :: headline(${config.headline})}">Headline</h1>
+    </div>
+
+    <div class="page__actions">
+      <a th:replace="~{fragments/components :: secondaryCtaButton(${config.secondaryButtonLabel}, 'https://github.com/antonlorani/eudo-golf-membership-credential')}">View on Github</a>
+      <a th:replace="~{fragments/components :: ctaButton(${config.primaryButtonLabel}, '/')}">Restart</a>
+    </div>
+
+    <footer th:replace="~{fragments/components :: mobileFooter(${config.footerText})}">Footer</footer>
+
+  </div>
+</body>
+</html>
