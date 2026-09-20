@@ -1,5 +1,5 @@
 .gradle/
 build/
-test-results/
+**/test-results/
 **/.DS_Store
 **/node_modules/
