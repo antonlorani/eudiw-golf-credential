@@ -13,8 +13,8 @@
   "issueCredential": {
     "headline": "Issue A Credential",
     "infoText": "Leads through the OID4VCI flow and lets you issue a demo credential into your EUDI Wallet.",
-    "secondaryButtonLabel": "Offer Credential to EUDI Wallet",
-    "primaryButtonLabel": "Continue",
+    "secondaryButtonLabel": "Skip",
+    "primaryButtonLabel": "Offer Credential to EUDI Wallet",
     "footerText": "© 2026 Anton Lorani"
   },
   "booking": {
