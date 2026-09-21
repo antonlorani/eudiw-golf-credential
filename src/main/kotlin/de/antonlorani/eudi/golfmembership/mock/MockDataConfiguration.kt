@@ -1,8 +1,8 @@
 package de.antonlorani.eudi.golfmembership.mock
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.treeToValue
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.module.kotlin.treeToValue
 import de.antonlorani.eudi.golfmembership.authorizecredential.AuthorizeCredentialPageConfiguration
 import de.antonlorani.eudi.golfmembership.booking.BookingPageConfiguration
 import de.antonlorani.eudi.golfmembership.failure.FailurePageConfiguration
