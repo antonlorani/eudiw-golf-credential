@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title th:text="${config.headline}">Verify Your HCP</title>
   <link rel="stylesheet" th:href="@{/css/app.css}">
+  <meta http-equiv="refresh" content="3">
 </head>
 <body>
   <div class="page page--green">
@@ -18,9 +19,7 @@
     </div>
 
     <div class="page__actions">
-      <form method="post" th:action="@{/demo(session=${sessionId})}" style="width: 100%;">
-        <button type="submit" class="secondary-cta-button" th:text="${config.secondaryButtonLabel}">Verify</button>
-      </form>
+      <a th:href="${deeplinkUrl}" class="secondary-cta-button" th:text="${config.secondaryButtonLabel}">Verify</a>
     </div>
 
     <footer th:replace="~{fragments/components :: mobileFooter(${config.footerText})}">Footer</footer>

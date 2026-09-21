@@ -37,6 +37,7 @@ class DemoFlowController(
             }
             DemoStep.VERIFY_HCP -> {
                 model.addAttribute("config", verifyHcpConfig)
+                model.addAttribute("deeplinkUrl", "openid4vp://verify?session=$session")
                 "verify-hcp"
             }
             DemoStep.SUCCESS -> {
