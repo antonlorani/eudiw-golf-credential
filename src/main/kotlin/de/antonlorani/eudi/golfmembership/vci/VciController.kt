@@ -46,6 +46,41 @@ class VciController(
         )
     }
 
+    @PostMapping("/par")
+    @ResponseBody
+    fun pushedAuthorizationRequest(
+        @RequestParam("response_type") responseType: String,
+        @RequestParam("client_id") clientId: String,
+        @RequestParam("redirect_uri") redirectUri: String,
+        @RequestParam("state", required = false) state: String?,
+        @RequestParam("code_challenge") codeChallenge: String,
+        @RequestParam("code_challenge_method") codeChallengeMethod: String,
+        @RequestParam("scope") scope: String,
+        @RequestParam("issuer_state", required = false) issuerState: String?,
+    ): ResponseEntity<Any> {
+        if (issuerState == null) {
+            return ResponseEntity.badRequest().body(VciErrorResponse("invalid_request"))
+        }
+        if (CredentialData.SCOPE !in scope.split(' ')) {
+            return ResponseEntity.badRequest().body(VciErrorResponse("invalid_scope"))
+        }
+        val requestUri = vciIssuanceService.pushAuthorizationRequest(
+            offerId = issuerState,
+            redirectUri = redirectUri,
+            clientState = state,
+            codeChallenge = codeChallenge,
+            codeChallengeMethod = codeChallengeMethod,
+            clientId = clientId,
+            scope = scope,
+        )
+        return ResponseEntity.status(201).body(
+            PushedAuthorizationResponse(
+                requestUri = requestUri,
+                expiresIn = 60,
+            )
+        )
+    }
+
     @PostMapping("/token")
     @ResponseBody
     fun token(

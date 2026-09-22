@@ -14,6 +14,7 @@ class VciIssuanceService {
     private val sessions = ConcurrentHashMap<String, VciSession>()
     private val authCodeIndex = ConcurrentHashMap<String, String>()
     private val tokenIndex = ConcurrentHashMap<String, String>()
+    private val requestUriIndex = ConcurrentHashMap<String, String>()
     private val insertionOrder = ConcurrentLinkedQueue<String>()
 
     fun createOffer(): VciSession {
@@ -37,16 +38,37 @@ class VciIssuanceService {
         codeChallenge: String,
         codeChallengeMethod: String,
         clientId: String,
-    ): VciSession? {
-        return sessions.computeIfPresent(offerId) { _, session ->
+        scope: String,
+    ) {
+        sessions.computeIfPresent(offerId) { _, session ->
             session.copy(
                 redirectUri = redirectUri,
                 clientState = clientState,
                 codeChallenge = codeChallenge,
                 codeChallengeMethod = codeChallengeMethod,
                 clientId = clientId,
+                scope = scope,
             )
         }
+    }
+
+    fun pushAuthorizationRequest(
+        offerId: String,
+        redirectUri: String,
+        clientState: String?,
+        codeChallenge: String,
+        codeChallengeMethod: String,
+        clientId: String,
+        scope: String,
+    ): String {
+        setAuthorizationParams(offerId, redirectUri, clientState, codeChallenge, codeChallengeMethod, clientId, scope)
+        val requestUri = "urn:ietf:params:oauth:request_uri:${UUID.randomUUID()}"
+        requestUriIndex[requestUri] = offerId
+        return requestUri
+    }
+
+    fun resolveRequestUri(requestUri: String): String? {
+        return requestUriIndex.remove(requestUri)
     }
 
     fun authorize(offerId: String, selectedCredentialIndex: Int): VciSession? {

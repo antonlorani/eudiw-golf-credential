@@ -16,27 +16,35 @@ class AuthorizeCredentialPageController(
 
     @GetMapping("/authorize")
     fun authorize(
-        @RequestParam("response_type") responseType: String,
         @RequestParam("client_id") clientId: String,
-        @RequestParam("redirect_uri") redirectUri: String,
+        @RequestParam("request_uri", required = false) requestUri: String?,
+        @RequestParam("response_type", required = false) responseType: String?,
+        @RequestParam("redirect_uri", required = false) redirectUri: String?,
         @RequestParam("state", required = false) state: String?,
-        @RequestParam("code_challenge") codeChallenge: String,
-        @RequestParam("code_challenge_method") codeChallengeMethod: String,
+        @RequestParam("code_challenge", required = false) codeChallenge: String?,
+        @RequestParam("code_challenge_method", required = false) codeChallengeMethod: String?,
+        @RequestParam("scope", required = false) scope: String?,
         @RequestParam("issuer_state", required = false) issuerState: String?,
         model: Model,
     ): String {
-        if (issuerState != null) {
-            vciIssuanceService.setAuthorizationParams(
-                offerId = issuerState,
-                redirectUri = redirectUri,
-                clientState = state,
-                codeChallenge = codeChallenge,
-                codeChallengeMethod = codeChallengeMethod,
-                clientId = clientId,
-            )
+        val offerId = when {
+            requestUri != null -> vciIssuanceService.resolveRequestUri(requestUri)
+            issuerState != null -> {
+                vciIssuanceService.setAuthorizationParams(
+                    offerId = issuerState,
+                    redirectUri = redirectUri!!,
+                    clientState = state,
+                    codeChallenge = codeChallenge!!,
+                    codeChallengeMethod = codeChallengeMethod!!,
+                    clientId = clientId,
+                    scope = scope!!,
+                )
+                issuerState
+            }
+            else -> null
         }
         model.addAttribute("config", configuration)
-        model.addAttribute("offerId", issuerState)
+        model.addAttribute("offerId", offerId)
         return "authorize-credential"
     }
 

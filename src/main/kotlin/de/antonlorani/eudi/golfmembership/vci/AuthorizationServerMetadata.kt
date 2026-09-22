@@ -8,6 +8,8 @@ data class AuthorizationServerMetadata(
     val issuer: String,
     val authorizationEndpoint: String,
     val tokenEndpoint: String,
+    val pushedAuthorizationRequestEndpoint: String,
+    val requirePushedAuthorizationRequests: Boolean,
     val responseTypesSupported: List<String>,
     val grantTypesSupported: List<String>,
     val codeChallengeMethodsSupported: List<String>,

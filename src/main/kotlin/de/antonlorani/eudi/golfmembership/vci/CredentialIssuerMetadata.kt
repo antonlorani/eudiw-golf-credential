@@ -7,6 +7,7 @@ import tools.jackson.databind.annotation.JsonNaming
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class CredentialIssuerMetadata(
     val credentialIssuer: String,
+    val authorizationServers: List<String>,
     val credentialEndpoint: String,
     val display: List<DisplayInfo>,
     val credentialConfigurationsSupported: Map<String, CredentialConfiguration>,
@@ -22,6 +23,7 @@ data class CredentialIssuerMetadata(
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
     data class CredentialConfiguration(
         val format: String,
+        val scope: String,
         val vct: String,
         val credentialSigningAlgValuesSupported: List<String>,
         val cryptographicBindingMethodsSupported: List<String>,

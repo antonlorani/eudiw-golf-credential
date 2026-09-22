@@ -8,6 +8,7 @@ data class VciSession(
     val codeChallenge: String? = null,
     val codeChallengeMethod: String? = null,
     val clientId: String? = null,
+    val scope: String? = null,
     val authorizationCode: String? = null,
     val selectedCredentialIndex: Int? = null,
     val accessToken: String? = null,

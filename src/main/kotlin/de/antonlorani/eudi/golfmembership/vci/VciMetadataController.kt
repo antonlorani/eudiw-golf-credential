@@ -44,6 +44,8 @@ class VciMetadataController(
             issuer = issuerUrl,
             authorizationEndpoint = "$issuerUrl/authorize",
             tokenEndpoint = "$issuerUrl/token",
+            pushedAuthorizationRequestEndpoint = "$issuerUrl/par",
+            requirePushedAuthorizationRequests = true,
             responseTypesSupported = listOf("code"),
             grantTypesSupported = listOf("authorization_code"),
             codeChallengeMethodsSupported = listOf("S256"),

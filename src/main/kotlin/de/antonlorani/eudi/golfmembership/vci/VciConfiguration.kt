@@ -47,6 +47,7 @@ class VciConfiguration(@Value("\${vci.issuer-url}") val issuerUrl: String) {
     fun credentialIssuerMetadata(): CredentialIssuerMetadata {
         return CredentialIssuerMetadata(
             credentialIssuer = issuerUrl,
+            authorizationServers = listOf(issuerUrl),
             credentialEndpoint = "$issuerUrl/credential",
             display = listOf(
                 CredentialIssuerMetadata.DisplayInfo(name = "National Golf Association", locale = "en"),
@@ -54,6 +55,7 @@ class VciConfiguration(@Value("\${vci.issuer-url}") val issuerUrl: String) {
             credentialConfigurationsSupported = mapOf(
                 CredentialData.CONFIGURATION_ID to CredentialIssuerMetadata.CredentialConfiguration(
                     format = CredentialData.FORMAT,
+                    scope = CredentialData.SCOPE,
                     vct = CredentialData.VCT,
                     credentialSigningAlgValuesSupported = listOf("ES256"),
                     cryptographicBindingMethodsSupported = listOf("jwk"),
