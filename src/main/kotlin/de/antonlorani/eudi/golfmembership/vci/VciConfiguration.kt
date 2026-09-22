@@ -62,10 +62,6 @@ class VciConfiguration(@Value("\${vci.issuer-url}") val issuerUrl: String) {
                     proofTypesSupported = mapOf(
                         "jwt" to CredentialIssuerMetadata.ProofTypeSupported(
                             proofSigningAlgValuesSupported = listOf("ES256"),
-                            keyAttestationsRequired = CredentialIssuerMetadata.KeyAttestationsRequired(
-                                keyStorage = listOf("iso_18045_high"),
-                                userAuthentication = listOf("iso_18045_high"),
-                            ),
                         ),
                     ),
                     claims = GolfMembershipClaim.entries.associate { claim ->
