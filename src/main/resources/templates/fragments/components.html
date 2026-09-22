@@ -69,27 +69,31 @@
 
 <!-- ── Golf Course Item ──────────────────────────────────── -->
 
-<div th:fragment="golfCourseItem(course)" class="golfcourse-item" onclick="selectItem(this, 'golfcourse-item')">
+<div th:fragment="golfCourseItem(course)" class="golfcourse-item"
+     th:attr="data-selection=${'course:' + course.id}"
+     onclick="selectItem(this, 'golfcourse-item')">
   <div class="selectable-radio">
     <div class="selectable-radio__inner"></div>
   </div>
   <div class="golfcourse-item__content">
     <span class="golfcourse-item__title" th:text="${course.name}">Course Name</span>
-    <span class="golfcourse-item__subtitle" th:text="${course.hcpRequirement}">HCP requirement</span>
+    <span class="golfcourse-item__subtitle" th:text="${'HCP requirement < ' + (course.maximumHcp + 1)}">HCP requirement</span>
   </div>
 </div>
 
 
 <!-- ── Tournament Item ───────────────────────────────────── -->
 
-<div th:fragment="tournamentItem(tournament)" class="tournament-item" onclick="selectItem(this, 'tournament-item')">
+<div th:fragment="tournamentItem(tournament)" class="tournament-item"
+     th:attr="data-selection=${'tournament:' + tournament.id}"
+     onclick="selectItem(this, 'tournament-item')">
   <div class="selectable-radio">
     <div class="selectable-radio__inner"></div>
   </div>
   <div class="tournament-item__content">
     <span class="tournament-item__title" th:text="${tournament.name}">Tournament Name</span>
     <span class="tournament-item__location" th:text="${tournament.location}">Location</span>
-    <span class="tournament-item__requirement" th:text="${tournament.hcpRequirement}">HCP requirement</span>
+    <span class="tournament-item__requirement" th:text="${'HCP requirement <= ' + tournament.maximumHcp}">HCP requirement</span>
   </div>
 </div>
 

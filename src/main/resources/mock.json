@@ -21,14 +21,14 @@
     "headline": "Make A Booking",
     "segmentLabels": ["Golf courses", "Tournaments"],
     "golfCourses": [
-      { "name": "Royal St. Andrews Links", "hcpRequirement": "HCP requirement <= 24" },
-      { "name": "Muirfield Golf Club", "hcpRequirement": "HCP requirement <= 18" },
-      { "name": "Carnoustle Championship", "hcpRequirement": "HCP requirement <= 12" }
+      { "id": "royal-st-andrews", "name": "Royal St. Andrews Links", "maximumHcp": 36 },
+      { "id": "muirfield", "name": "Muirfield Golf Club", "maximumHcp": 36 },
+      { "id": "carnoustle", "name": "Carnoustle Championship", "maximumHcp": 36 }
     ],
     "tournaments": [
-      { "name": "Summer Open 2026", "location": "Royal St Andrews Links", "hcpRequirement": "HCP requirement <= 18" },
-      { "name": "Club Championship", "location": "Muirfield Golf Club", "hcpRequirement": "HCP requirement <= 24" },
-      { "name": "Invitational Pro-Am", "location": "Carnoustle Championship", "hcpRequirement": "HCP requirement <= 6" }
+      { "id": "summer-open-2026", "name": "Summer Open 2026", "location": "Royal St Andrews Links", "maximumHcp": 18 },
+      { "id": "club-championship", "name": "Club Championship", "location": "Muirfield Golf Club", "maximumHcp": 24 },
+      { "id": "invitational-pro-am", "name": "Invitational Pro-Am", "location": "Carnoustle Championship", "maximumHcp": 6 }
     ],
     "primaryButtonLabel": "Continue",
     "footerText": "© 2026 Anton Lorani"
@@ -58,7 +58,7 @@
     "footerText": "© 2026 Anton Lorani"
   },
   "failure": {
-    "headline": "Credential Expired",
+    "headline": "Credential Not Accepted",
     "secondaryButtonLabel": "View on Github",
     "primaryButtonLabel": "Restart",
     "footerText": "© 2026 Anton Lorani"

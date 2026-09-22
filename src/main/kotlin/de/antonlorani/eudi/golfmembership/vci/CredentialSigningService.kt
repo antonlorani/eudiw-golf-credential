@@ -49,7 +49,7 @@ class CredentialSigningService(
             sdClaim(GolfMembershipClaim.GIVEN_NAME.claimName, data.givenName)
             sdClaim(GolfMembershipClaim.FAMILY_NAME.claimName, data.familyName)
             sdClaim(GolfMembershipClaim.HCP_INDEX.claimName, data.hcpIndex)
-            sdClaim(GolfMembershipClaim.IS_HCP_BELOW_36.claimName, data.isHcpBelow36)
+            sdClaim(GolfMembershipClaim.IS_HCP_BELOW_37.claimName, data.isHcpBelow37)
             sdClaim(GolfMembershipClaim.CLUB_NAME.claimName, data.clubName)
             sdClaim(GolfMembershipClaim.MEMBERSHIP_VALID_UNTIL.claimName, data.membershipValidUntil)
         }
