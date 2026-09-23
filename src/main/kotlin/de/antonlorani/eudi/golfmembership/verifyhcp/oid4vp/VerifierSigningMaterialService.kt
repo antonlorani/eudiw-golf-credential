@@ -21,13 +21,12 @@ class VerifierSigningMaterialService(
         val password = keyStorePassword.toCharArray()
         val keyStore = KeyStore.getInstance("PKCS12")
         keyStoreResource.inputStream.use { keyStore.load(it, password) }
-        val certificate = keyStore.getCertificate(keyAlias)
-        if (certificate !is X509Certificate) {
-            throw IllegalStateException("Verifier certificate is not an X.509 certificate")
-        }
+        val chain = keyStore.getCertificateChain(keyAlias)
+            ?.map { it as X509Certificate }
+            ?: throw IllegalStateException("No certificate chain found for alias: $keyAlias")
         return VerifierSigningMaterial(
             signingKey = ECKey.load(keyStore, keyAlias, password),
-            certificate = certificate,
+            certificateChain = chain,
         )
     }
 }

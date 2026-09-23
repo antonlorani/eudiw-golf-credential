@@ -1,46 +1,42 @@
 package de.antonlorani.eudi.golfmembership.vci
 
-import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.ECKey
-import com.nimbusds.jose.jwk.gen.ECKeyGenerator
-import org.bouncycastle.asn1.x500.X500Name
-import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter
-import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder
-import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import java.math.BigInteger
+import org.springframework.core.io.Resource
+import java.security.KeyStore
 import java.security.cert.X509Certificate
-import java.time.Instant
-import java.time.temporal.ChronoUnit
-import java.util.Date
-import java.util.UUID
 
 @Configuration
 class VciConfiguration(@Value("\${vci.issuer-url}") val issuerUrl: String) {
 
     @Bean
-    fun issuerSigningKey(): ECKey =
-        ECKeyGenerator(Curve.P_256)
-            .keyID(UUID.randomUUID().toString())
-            .generate()
+    fun issuerSigningKey(
+        @Value("\${vci.signing-keystore.location}") keyStoreResource: Resource,
+        @Value("\${vci.signing-keystore.password}") keyStorePassword: String,
+        @Value("\${vci.signing-keystore.alias}") keyAlias: String,
+    ): ECKey {
+        val password = keyStorePassword.toCharArray()
+        val keyStore = KeyStore.getInstance("PKCS12")
+        keyStoreResource.inputStream.use { keyStore.load(it, password) }
+        return ECKey.load(keyStore, keyAlias, password)
+    }
 
     @Bean
-    fun issuerCertificate(issuerSigningKey: ECKey): X509Certificate {
-        val subject = X500Name("CN=localhost")
-        val now = Instant.now()
-        val certBuilder = JcaX509v3CertificateBuilder(
-            subject,
-            BigInteger.valueOf(now.toEpochMilli()),
-            Date.from(now),
-            Date.from(now.plus(3650, ChronoUnit.DAYS)),
-            subject,
-            issuerSigningKey.toECPublicKey(),
-        )
-        val signer = JcaContentSignerBuilder("SHA256withECDSA")
-            .build(issuerSigningKey.toECPrivateKey())
-        return JcaX509CertificateConverter().getCertificate(certBuilder.build(signer))
+    fun issuerCertificate(
+        @Value("\${vci.signing-keystore.location}") keyStoreResource: Resource,
+        @Value("\${vci.signing-keystore.password}") keyStorePassword: String,
+        @Value("\${vci.signing-keystore.alias}") keyAlias: String,
+    ): X509Certificate {
+        val password = keyStorePassword.toCharArray()
+        val keyStore = KeyStore.getInstance("PKCS12")
+        keyStoreResource.inputStream.use { keyStore.load(it, password) }
+        val certificate = keyStore.getCertificate(keyAlias)
+        if (certificate !is X509Certificate) {
+            throw IllegalStateException("Issuer certificate is not an X.509 certificate")
+        }
+        return certificate
     }
 
     @Bean

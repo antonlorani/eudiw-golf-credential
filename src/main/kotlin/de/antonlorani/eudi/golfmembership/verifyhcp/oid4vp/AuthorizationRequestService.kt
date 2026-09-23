@@ -27,6 +27,11 @@ class AuthorizationRequestService(
     private val objectMapper: ObjectMapper,
 ) {
     fun create(sessionId: String, pending: DemoState.PendingVerification): String {
+        val requestUri = "${configuration.verifierUrl}/oid4vp/requests/$sessionId"
+        return "openid4vp://authorize?client_id=${encode(configuration.clientId)}&request_uri=${encode(requestUri)}"
+    }
+
+    fun createRequestObject(sessionId: String, pending: DemoState.PendingVerification): String {
         val signingMaterial = signingMaterialService.verifierSigningMaterial()
         val requestedClaim = when (val selection = pending.selection) {
             is BookingSelection.GolfCourse -> {
@@ -80,12 +85,12 @@ class AuthorizationRequestService(
             .build()
         val header = JWSHeader.Builder(JWSAlgorithm.ES256)
             .type(JOSEObjectType("oauth-authz-req+jwt"))
-            .x509CertChain(listOf(Base64.encode(signingMaterial.certificate.encoded)))
+            .x509CertChain(signingMaterial.certificateChain.map { Base64.encode(it.encoded) })
             .build()
         val requestObject = SignedJWT(header, claims).apply {
             sign(ECDSASigner(signingMaterial.signingKey))
         }.serialize()
-        return "openid4vp://authorize?client_id=${encode(configuration.clientId)}&request=${encode(requestObject)}"
+        return requestObject
     }
 
     private fun encode(value: String): String = URLEncoder.encode(value, Charsets.UTF_8)

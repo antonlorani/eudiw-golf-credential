@@ -5,5 +5,5 @@ import java.security.cert.X509Certificate
 
 data class VerifierSigningMaterial(
     val signingKey: ECKey,
-    val certificate: X509Certificate,
+    val certificateChain: List<X509Certificate>,
 )
