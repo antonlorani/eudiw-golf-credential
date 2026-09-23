@@ -36,8 +36,13 @@ data class CredentialIssuerMetadata(
         val credentialSigningAlgValuesSupported: List<String>,
         val cryptographicBindingMethodsSupported: List<String>,
         val proofTypesSupported: Map<String, ProofTypeSupported>,
-        val claims: Map<String, ClaimMetadata>,
+        val credentialMetadata: CredentialMetadata,
+    )
+
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
+    data class CredentialMetadata(
         val display: List<DisplayInfo>,
+        val claims: List<ClaimMetadata>,
     )
 
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
@@ -54,6 +59,7 @@ data class CredentialIssuerMetadata(
 
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
     data class ClaimMetadata(
+        val path: List<String>,
         val display: List<DisplayInfo>,
     )
 }

@@ -71,13 +71,24 @@ class VciConfiguration(@Value("\${vci.issuer-url}") val issuerUrl: String) {
                             proofSigningAlgValuesSupported = listOf("ES256"),
                         ),
                     ),
-                    claims = GolfMembershipClaim.entries.associate { claim ->
-                        claim.claimName to CredentialIssuerMetadata.ClaimMetadata(
-                            display = listOf(CredentialIssuerMetadata.DisplayInfo(name = claim.displayName)),
-                        )
-                    },
-                    display = listOf(
-                        CredentialIssuerMetadata.DisplayInfo(name = "Golf Membership", locale = "en"),
+                    credentialMetadata = CredentialIssuerMetadata.CredentialMetadata(
+                        display = listOf(
+                            CredentialIssuerMetadata.DisplayInfo(
+                                name = "Golf Membership",
+                                locale = "en",
+                                logo = CredentialIssuerMetadata.Logo(
+                                    uri = "$issuerUrl/images/national-golf-association.png",
+                                    altText = "National Golf Association logo",
+                                ),
+                                backgroundColor = "#264A2C",
+                            ),
+                        ),
+                        claims = GolfMembershipClaim.entries.map { claim ->
+                            CredentialIssuerMetadata.ClaimMetadata(
+                                path = listOf(claim.claimName),
+                                display = listOf(CredentialIssuerMetadata.DisplayInfo(name = claim.displayName)),
+                            )
+                        },
                     ),
                 ),
             ),
