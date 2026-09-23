@@ -2,8 +2,9 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title th:text="${config.headline}">Credential Not Accepted</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#F3F8E9">
+  <title th:text="${failureHeadline}">Credential Not Accepted</title>
   <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
 <body>
@@ -11,7 +12,7 @@
 
     <div class="result-center">
       <div th:replace="~{fragments/components :: xmarkSymbol}">XMark</div>
-      <h1 th:replace="~{fragments/components :: headline(${config.headline})}">Headline</h1>
+      <h1 th:replace="~{fragments/components :: headline(${failureHeadline})}">Headline</h1>
     </div>
 
     <div class="page__actions">
