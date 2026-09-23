@@ -30,16 +30,7 @@ class CredentialProofServiceTest {
     fun `accepts a valid ES256 proof and returns its public key`() {
         val nonce = nonceService.issue()
 
-        val result = service.verify(proof(nonce = nonce), null, clientId)
-
-        assertEquals(holderKey.toPublicJWK(), result)
-    }
-
-    @Test
-    fun `accepts the nonce issued in the token response`() {
-        val nonce = "token-response-nonce"
-
-        val result = service.verify(proof(nonce = nonce), nonce, clientId)
+        val result = service.verify(proof(nonce = nonce), clientId)
 
         assertEquals(holderKey.toPublicJWK(), result)
     }
@@ -55,7 +46,7 @@ class CredentialProofServiceTest {
     @Test
     fun `rejects a replayed nonce`() {
         val nonce = nonceService.issue()
-        service.verify(proof(nonce = nonce), null, clientId)
+        service.verify(proof(nonce = nonce), clientId)
 
         assertInvalid(proof(nonce = nonce), "nonce")
     }
@@ -114,7 +105,7 @@ class CredentialProofServiceTest {
 
     private fun assertInvalid(serialized: String, expectedDescriptionPart: String) {
         val error = assertThrows(CredentialProofException::class.java) {
-            service.verify(serialized, null, clientId)
+            service.verify(serialized, clientId)
         }
         check(error.description.contains(expectedDescriptionPart)) {
             "Expected '${error.description}' to contain '$expectedDescriptionPart'"

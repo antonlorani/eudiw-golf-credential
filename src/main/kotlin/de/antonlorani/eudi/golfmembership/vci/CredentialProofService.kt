@@ -19,12 +19,12 @@ class CredentialProofService(
     private val proofLifetime = Duration.ofMinutes(5)
     private val futureClockSkew = Duration.ofSeconds(60)
 
-    fun verify(serializedProof: String, tokenNonce: String?, expectedClientId: String?): JWK {
+    fun verify(serializedProof: String, expectedClientId: String?): JWK {
         val proof = parse(serializedProof, "The credential proof is not a valid signed JWT")
         validateHeader(proof)
         val holderKey = holderKey(proof)
         validateSignature(proof, holderKey)
-        validateClaims(proof, tokenNonce, expectedClientId)
+        validateClaims(proof, expectedClientId)
         return holderKey.toPublicJWK()
     }
 
@@ -107,7 +107,7 @@ class CredentialProofService(
         }
     }
 
-    private fun validateClaims(proof: SignedJWT, tokenNonce: String?, expectedClientId: String?) {
+    private fun validateClaims(proof: SignedJWT, expectedClientId: String?) {
         val claims = try {
             proof.jwtClaimsSet
         } catch (_: Exception) {
@@ -136,7 +136,7 @@ class CredentialProofService(
             invalid("The credential proof nonce claim must be a string")
         } ?: invalid("The credential proof nonce claim is required")
 
-        val validNonce = nonce == tokenNonce || nonceService.consume(nonce)
+        val validNonce = nonceService.consume(nonce)
 
         if (!validNonce) {
             throw CredentialProofException(

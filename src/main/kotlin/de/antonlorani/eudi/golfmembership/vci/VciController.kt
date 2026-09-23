@@ -149,8 +149,6 @@ class VciController(
                 accessToken = session.accessToken!!,
                 tokenType = "DPoP",
                 expiresIn = 300,
-                cNonce = session.cNonce!!,
-                cNonceExpiresIn = 300,
             ))
     }
 
@@ -162,13 +160,13 @@ class VciController(
         @RequestBody request: CredentialRequest,
     ): ResponseEntity<Any> {
         val token = extractDpopAccessToken(authorization)
-            ?: return ResponseEntity.status(401).body(VciErrorResponse("invalid_token"))
+            ?: return credentialError(401, "invalid_token")
 
         val pendingSession = vciIssuanceService.findByAccessToken(token)
-            ?: return ResponseEntity.status(401).body(VciErrorResponse("invalid_token"))
+            ?: return credentialError(401, "invalid_token")
 
         val boundKeyThumbprint = pendingSession.dpopKeyThumbprint
-            ?: return ResponseEntity.status(401).body(VciErrorResponse("invalid_token"))
+            ?: return credentialError(401, "invalid_token")
 
         try {
             dpopProofService.verify(
@@ -183,12 +181,11 @@ class VciController(
         }
 
         val proofJwt = request.extractProofJwt()
-            ?: return ResponseEntity.badRequest().body(VciErrorResponse("invalid_proof"))
+            ?: return credentialError(400, "invalid_proof")
 
         val holderKey = try {
             credentialProofService.verify(
                 serializedProof = proofJwt,
-                tokenNonce = pendingSession.cNonce,
                 expectedClientId = pendingSession.clientId,
             )
         } catch (error: CredentialProofException) {
@@ -198,15 +195,19 @@ class VciController(
         }
 
         val session = vciIssuanceService.consumeAccessToken(token)
-            ?: return ResponseEntity.status(401).body(VciErrorResponse("invalid_token"))
+            ?: return credentialError(401, "invalid_token")
 
         val credentialData = CredentialData.ALL[session.selectedCredentialIndex!!]
         val sdJwtVc = credentialSigningService.sign(credentialData, holderKey)
 
         return if (request.isBatch()) {
-            ResponseEntity.ok(BatchCredentialResponse(listOf(CredentialResponse(sdJwtVc))))
+            ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore())
+                .body(BatchCredentialResponse(listOf(CredentialResponse(sdJwtVc))))
         } else {
-            ResponseEntity.ok(CredentialResponse(sdJwtVc))
+            ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore())
+                .body(CredentialResponse(sdJwtVc))
         }
     }
 
@@ -238,5 +239,11 @@ class VciController(
             .header("WWW-Authenticate", "DPoP error=\"invalid_dpop_proof\", algs=\"ES256\"")
             .cacheControl(CacheControl.noStore())
             .body(VciErrorResponse("invalid_dpop_proof", error.description))
+    }
+
+    private fun credentialError(status: Int, error: String): ResponseEntity<Any> {
+        return ResponseEntity.status(status)
+            .cacheControl(CacheControl.noStore())
+            .body(VciErrorResponse(error))
     }
 }

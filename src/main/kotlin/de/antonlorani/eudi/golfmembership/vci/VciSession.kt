@@ -12,6 +12,5 @@ data class VciSession(
     val authorizationCode: String? = null,
     val selectedCredentialIndex: Int? = null,
     val accessToken: String? = null,
-    val cNonce: String? = null,
     val dpopKeyThumbprint: String? = null,
 )

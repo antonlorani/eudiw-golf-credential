@@ -77,10 +77,9 @@ class VciIssuanceService {
             if (session.redirectUri != redirectUri) return@computeIfPresent session
             if (!verifyPkce(codeVerifier, session.codeChallenge, session.codeChallengeMethod)) return@computeIfPresent session
             val token = UUID.randomUUID().toString()
-            val nonce = UUID.randomUUID().toString()
 
             tokenIndex[token] = offerId
-            session.copy(accessToken = token, cNonce = nonce)
+            session.copy(accessToken = token)
         }
     }
 
