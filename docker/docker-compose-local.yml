@@ -1,0 +1,21 @@
+services:
+  server:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8443:8443"
+    environment:
+      VCI_ISSUER_URL: "${PUBLIC_BASE_URL:-https://localhost:8443}"
+      OID4VP_VERIFIER_URL: "${PUBLIC_BASE_URL:-https://localhost:8443}"
+      OID4VP_CLIENT_ID: "${OID4VP_CLIENT_ID:-localhost}"
+      VCI_SIGNING_KEYSTORE_LOCATION: file:/certs/issuer.p12
+      VCI_SIGNING_KEYSTORE_PASSWORD: "${KEYSTORE_PASSWORD:-changeit}"
+      VCI_SIGNING_KEYSTORE_ALIAS: issuer
+      OID4VP_SIGNING_KEYSTORE_LOCATION: file:/certs/oid4vp-verifier.p12
+      OID4VP_SIGNING_KEYSTORE_PASSWORD: "${KEYSTORE_PASSWORD:-changeit}"
+      OID4VP_SIGNING_KEYSTORE_ALIAS: oid4vp-verifier
+      SPRING_SSL_BUNDLE_JKS_SERVER_KEYSTORE_LOCATION: file:/certs/server.p12
+      SPRING_SSL_BUNDLE_JKS_SERVER_KEYSTORE_PASSWORD: "${KEYSTORE_PASSWORD:-changeit}"
+    volumes:
+      - ./certs:/certs:ro

@@ -13,7 +13,7 @@ import de.antonlorani.eudi.golfmembership.demo.DemoState
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.springframework.core.io.ClassPathResource
+import org.springframework.core.io.FileSystemResource
 import java.net.URI
 import java.net.URLDecoder
 import java.security.cert.X509Certificate
@@ -25,7 +25,7 @@ class AuthorizationRequestServiceTest {
     fun `creates an ES256 signed x509 san dns request`() {
         val configuration = Oid4vpConfiguration("https://localhost:8443", "localhost")
         val signingMaterialService = VerifierSigningMaterialService(
-            keyStoreResource = ClassPathResource("oid4vp-verifier.p12"),
+            keyStoreResource = FileSystemResource("docker/certs/oid4vp-verifier.p12"),
             keyStorePassword = "changeit",
             keyAlias = "oid4vp-verifier",
         )

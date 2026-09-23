@@ -1,0 +1,10 @@
+.git
+.gradle
+.idea
+.kotlin
+build
+design
+docker/certs
+test-results
+**/.DS_Store
+**/node_modules
