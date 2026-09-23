@@ -45,6 +45,7 @@ class VciConfiguration(@Value("\${vci.issuer-url}") val issuerUrl: String) {
             credentialIssuer = issuerUrl,
             authorizationServers = listOf(issuerUrl),
             credentialEndpoint = "$issuerUrl/credential",
+            nonceEndpoint = "$issuerUrl/nonce",
             display = listOf(
                 CredentialIssuerMetadata.DisplayInfo(
                     name = "National Golf Association",

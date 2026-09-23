@@ -15,7 +15,7 @@ data class CredentialRequest(
 
     fun extractProofJwt(): String? {
         proof?.jwt?.let { return it }
-        return proofs?.jwt?.firstOrNull()
+        return proofs?.jwt?.singleOrNull()
     }
 
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)

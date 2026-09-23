@@ -1,7 +1,5 @@
 package de.antonlorani.eudi.golfmembership.vci
 
-import com.nimbusds.jose.jwk.JWK
-import com.nimbusds.jwt.SignedJWT
 import de.antonlorani.eudi.golfmembership.vci.par.PushedAuthorizationRequest
 import de.antonlorani.eudi.golfmembership.vci.par.PushedAuthorizationRequestException
 import de.antonlorani.eudi.golfmembership.vci.par.PushedAuthorizationRequestService
@@ -26,6 +24,8 @@ class VciController(
     private val vciConfiguration: VciConfiguration,
     private val pushedAuthorizationRequestService: PushedAuthorizationRequestService,
     private val dpopProofService: DpopProofService,
+    private val credentialProofService: CredentialProofService,
+    private val nonceService: NonceService,
 ) {
 
     @PostMapping("/credential-offers")
@@ -182,15 +182,23 @@ class VciController(
             return invalidResourceDpopProof(error)
         }
 
-        val session = vciIssuanceService.consumeAccessToken(token)
-            ?: return ResponseEntity.status(401).body(VciErrorResponse("invalid_token"))
-
         val proofJwt = request.extractProofJwt()
             ?: return ResponseEntity.badRequest().body(VciErrorResponse("invalid_proof"))
 
-        val signedJwt = SignedJWT.parse(proofJwt)
-        val holderKey = extractHolderKey(signedJwt)
-            ?: return ResponseEntity.badRequest().body(VciErrorResponse("invalid_proof"))
+        val holderKey = try {
+            credentialProofService.verify(
+                serializedProof = proofJwt,
+                tokenNonce = pendingSession.cNonce,
+                expectedClientId = pendingSession.clientId,
+            )
+        } catch (error: CredentialProofException) {
+            return ResponseEntity.badRequest()
+                .cacheControl(CacheControl.noStore())
+                .body(VciErrorResponse(error.error, error.description))
+        }
+
+        val session = vciIssuanceService.consumeAccessToken(token)
+            ?: return ResponseEntity.status(401).body(VciErrorResponse("invalid_token"))
 
         val credentialData = CredentialData.ALL[session.selectedCredentialIndex!!]
         val sdJwtVc = credentialSigningService.sign(credentialData, holderKey)
@@ -202,20 +210,12 @@ class VciController(
         }
     }
 
-    private fun extractHolderKey(signedJwt: SignedJWT): JWK? {
-        signedJwt.header.jwk?.let { return it }
-
-        val keyAttestationString = signedJwt.header.toJSONObject()["key_attestation"] as? String
-            ?: return null
-        val keyAttestation = SignedJWT.parse(keyAttestationString)
-
-        val attestedKeys = keyAttestation.jwtClaimsSet.getClaim("attested_keys") as? List<*>
-            ?: return null
-        val kidIndex = (signedJwt.header.keyID ?: "0").toIntOrNull() ?: 0
-        val keyMap = attestedKeys.getOrNull(kidIndex) as? Map<*, *> ?: return null
-
-        @Suppress("UNCHECKED_CAST")
-        return JWK.parse(keyMap as Map<String, Any>)
+    @PostMapping("/nonce")
+    @ResponseBody
+    fun nonce(): ResponseEntity<NonceResponse> {
+        return ResponseEntity.ok()
+            .cacheControl(CacheControl.noStore())
+            .body(NonceResponse(nonceService.issue()))
     }
 
     private fun extractDpopAccessToken(authorization: String): String? {

@@ -9,6 +9,7 @@ data class CredentialIssuerMetadata(
     val credentialIssuer: String,
     val authorizationServers: List<String>,
     val credentialEndpoint: String,
+    val nonceEndpoint: String,
     val display: List<DisplayInfo>,
     val credentialConfigurationsSupported: Map<String, CredentialConfiguration>,
 ) {

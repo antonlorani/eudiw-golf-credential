@@ -15,6 +15,7 @@ class CredentialIssuerMetadataTest {
         val configuration = json["credential_configurations_supported"][CredentialData.CONFIGURATION_ID]
         val credentialMetadata = configuration["credential_metadata"]
 
+        assertEquals("$issuerUrl/nonce", json["nonce_endpoint"].asText())
         assertFalse(configuration.has("display"))
         assertFalse(configuration.has("claims"))
         assertEquals("Golf Membership", credentialMetadata["display"][0]["name"].asText())
