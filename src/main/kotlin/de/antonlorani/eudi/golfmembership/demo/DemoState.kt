@@ -14,7 +14,10 @@ sealed interface DemoState {
 
     data class VerificationAccepted(val selection: BookingSelection) : DemoState
 
-    data class VerificationRejected(val selection: BookingSelection) : DemoState
+    data class VerificationRejected(
+        val selection: BookingSelection,
+        val reason: VerificationRejectionReason? = null,
+    ) : DemoState
 }
 
 sealed interface BookingSelection {
@@ -25,6 +28,10 @@ sealed interface BookingSelection {
 enum class VerificationOutcome {
     ACCEPTED,
     REJECTED,
+}
+
+enum class VerificationRejectionReason {
+    HCP_TOO_HIGH,
 }
 
 sealed interface VerificationStartResult {

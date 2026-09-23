@@ -58,6 +58,7 @@ class DemoFlowService(
         id: String,
         responseState: String,
         outcome: VerificationOutcome,
+        rejectionReason: VerificationRejectionReason? = null,
     ): VerificationCompletionResult {
         val session = sessions[id] ?: return VerificationCompletionResult.SessionNotFound
         val pending = when (val currentState = session.state) {
@@ -74,7 +75,7 @@ class DemoFlowService(
 
         val completedState = when (outcome) {
             VerificationOutcome.ACCEPTED -> DemoState.VerificationAccepted(pending.selection)
-            VerificationOutcome.REJECTED -> DemoState.VerificationRejected(pending.selection)
+            VerificationOutcome.REJECTED -> DemoState.VerificationRejected(pending.selection, rejectionReason)
         }
         val completedSession = session.copy(state = completedState)
         sessions[id] = completedSession

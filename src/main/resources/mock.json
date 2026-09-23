@@ -58,7 +58,10 @@
     "footerText": "© 2026 Anton Lorani"
   },
   "failure": {
-    "headline": "Credential Not Accepted",
+    "headline": {
+      "general": "Credential Not Accepted",
+      "hcpTooHigh": "Sorry, your HCP is too high"
+    },
     "secondaryButtonLabel": "View on Github",
     "primaryButtonLabel": "Restart",
     "footerText": "© 2026 Anton Lorani"

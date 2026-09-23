@@ -5,6 +5,7 @@ import de.antonlorani.eudi.golfmembership.demo.DemoFlowService
 import de.antonlorani.eudi.golfmembership.demo.DemoState
 import de.antonlorani.eudi.golfmembership.demo.VerificationCompletionResult
 import de.antonlorani.eudi.golfmembership.demo.VerificationOutcome
+import de.antonlorani.eudi.golfmembership.demo.VerificationRejectionReason
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
@@ -44,7 +45,12 @@ class AuthorizationResponseService(
             logger.warn("Presentation for demo session {} rejected: {}", sessionId, reason)
         }
         val outcome = if (accepted) VerificationOutcome.ACCEPTED else VerificationOutcome.REJECTED
-        val completion = sessions.completeVerification(sessionId, state, outcome)
+        val rejectionReason = if (validation is ValidPresentationResult && !accepted) {
+            VerificationRejectionReason.HCP_TOO_HIGH
+        } else {
+            null
+        }
+        val completion = sessions.completeVerification(sessionId, state, outcome, rejectionReason)
         return completion is VerificationCompletionResult.Completed
     }
 

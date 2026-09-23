@@ -3,6 +3,7 @@ package de.antonlorani.eudi.golfmembership.verifyhcp.oid4vp
 import de.antonlorani.eudi.golfmembership.demo.BookingSelection
 import de.antonlorani.eudi.golfmembership.demo.DemoFlowService
 import de.antonlorani.eudi.golfmembership.demo.DemoState
+import de.antonlorani.eudi.golfmembership.demo.VerificationRejectionReason
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Test
@@ -61,10 +62,11 @@ class AuthorizationResponseServiceTest {
         val processed = service.process(session.id, "state", "vp-token")
 
         assertEquals(true, processed)
-        assertInstanceOf(
+        val rejected = assertInstanceOf(
             DemoState.VerificationRejected::class.java,
             sessions.getSession(session.id)?.state,
         )
+        assertEquals(VerificationRejectionReason.HCP_TOO_HIGH, rejected.reason)
     }
 
     @Test

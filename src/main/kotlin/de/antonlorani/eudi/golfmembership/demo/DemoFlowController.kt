@@ -49,7 +49,7 @@ class DemoFlowController(
             DemoState.Booking -> showBooking(model)
             is DemoState.PendingVerification -> showPendingVerification(model, demoSession.id, state)
             is DemoState.VerificationAccepted -> showSuccess(model)
-            is DemoState.VerificationRejected -> showFailure(model)
+            is DemoState.VerificationRejected -> showFailure(model, state)
         }
     }
 
@@ -75,8 +75,13 @@ class DemoFlowController(
         return "success"
     }
 
-    private fun showFailure(model: Model): String {
+    private fun showFailure(model: Model, state: DemoState.VerificationRejected): String {
         model.addAttribute("config", failureConfig)
+        val headline = when (state.reason) {
+            VerificationRejectionReason.HCP_TOO_HIGH -> failureConfig.headline.hcpTooHigh
+            null -> failureConfig.headline.general
+        }
+        model.addAttribute("failureHeadline", headline)
         return "failure"
     }
 
