@@ -19,6 +19,7 @@ data class CredentialIssuerMetadata(
         val name: String,
         val locale: String? = null,
         val logo: Logo? = null,
+        val backgroundColor: String? = null,
     )
 
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
