@@ -13,4 +13,5 @@ data class AuthorizationServerMetadata(
     val responseTypesSupported: List<String>,
     val grantTypesSupported: List<String>,
     val codeChallengeMethodsSupported: List<String>,
+    val dpopSigningAlgValuesSupported: List<String>,
 )

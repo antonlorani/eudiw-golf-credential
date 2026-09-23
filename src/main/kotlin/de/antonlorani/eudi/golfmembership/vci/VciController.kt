@@ -5,6 +5,8 @@ import com.nimbusds.jwt.SignedJWT
 import de.antonlorani.eudi.golfmembership.vci.par.PushedAuthorizationRequest
 import de.antonlorani.eudi.golfmembership.vci.par.PushedAuthorizationRequestException
 import de.antonlorani.eudi.golfmembership.vci.par.PushedAuthorizationRequestService
+import de.antonlorani.eudi.golfmembership.vci.dpop.DpopProofException
+import de.antonlorani.eudi.golfmembership.vci.dpop.DpopProofService
 import org.springframework.http.ResponseEntity
 import org.springframework.http.CacheControl
 import org.springframework.stereotype.Controller
@@ -23,6 +25,7 @@ class VciController(
     private val credentialSigningService: CredentialSigningService,
     private val vciConfiguration: VciConfiguration,
     private val pushedAuthorizationRequestService: PushedAuthorizationRequestService,
+    private val dpopProofService: DpopProofService,
 ) {
 
     @PostMapping("/credential-offers")
@@ -38,6 +41,7 @@ class VciController(
     fun getOffer(@PathVariable id: String): ResponseEntity<CredentialOfferResponse> {
         val session = vciIssuanceService.getOffer(id)
             ?: return ResponseEntity.notFound().build()
+
         return ResponseEntity.ok(
             CredentialOfferResponse(
                 credentialIssuer = vciConfiguration.issuerUrl,
@@ -62,6 +66,8 @@ class VciController(
         @RequestParam("code_challenge_method", required = false) codeChallengeMethod: String?,
         @RequestParam("scope", required = false) scope: String?,
         @RequestParam("issuer_state", required = false) issuerState: String?,
+        @RequestParam("dpop_jkt", required = false) dpopKeyThumbprint: String?,
+        @RequestHeader("DPoP", required = false) dpopProof: String?,
     ): ResponseEntity<Any> {
         val requestUri = try {
             pushedAuthorizationRequestService.push(
@@ -74,20 +80,25 @@ class VciController(
                     codeChallengeMethod = codeChallengeMethod,
                     scope = scope,
                     issuerState = issuerState,
+                    dpopKeyThumbprint = dpopKeyThumbprint,
+                    dpopProof = dpopProof,
                 )
             )
         } catch (error: PushedAuthorizationRequestException) {
             return ResponseEntity.badRequest()
                 .cacheControl(CacheControl.noStore())
                 .body(VciErrorResponse(error.error, error.description))
+        } catch (error: DpopProofException) {
+            return invalidDpopProof(error)
         }
+
         return ResponseEntity.status(201)
             .cacheControl(CacheControl.noStore())
             .body(
-            PushedAuthorizationResponse(
-                requestUri = requestUri,
-                expiresIn = pushedAuthorizationRequestService.expiresInSeconds(),
-            )
+                PushedAuthorizationResponse(
+                    requestUri = requestUri,
+                    expiresIn = pushedAuthorizationRequestService.expiresInSeconds(),
+                )
             )
     }
 
@@ -98,30 +109,79 @@ class VciController(
         @RequestParam("code") code: String,
         @RequestParam("redirect_uri") redirectUri: String,
         @RequestParam("code_verifier") codeVerifier: String,
+        @RequestHeader("DPoP", required = false) dpopProof: String?,
     ): ResponseEntity<Any> {
         if (grantType != "authorization_code") {
-            return ResponseEntity.badRequest().body(VciErrorResponse("unsupported_grant_type"))
+            return ResponseEntity.badRequest()
+                .cacheControl(CacheControl.noStore())
+                .body(VciErrorResponse("unsupported_grant_type"))
         }
+
+        val pendingSession = vciIssuanceService.findByAuthorizationCode(code)
+            ?: return ResponseEntity.badRequest()
+                .cacheControl(CacheControl.noStore())
+                .body(VciErrorResponse("invalid_grant"))
+
+        val boundKeyThumbprint = pendingSession.dpopKeyThumbprint
+            ?: return ResponseEntity.badRequest()
+                .cacheControl(CacheControl.noStore())
+                .body(VciErrorResponse("invalid_grant"))
+
+        try {
+            dpopProofService.verify(
+                serializedProof = dpopProof,
+                httpMethod = "POST",
+                targetUri = "${vciConfiguration.issuerUrl}/token",
+                expectedKeyThumbprint = boundKeyThumbprint,
+            )
+        } catch (error: DpopProofException) {
+            return invalidDpopProof(error)
+        }
+
         val session = vciIssuanceService.exchangeCode(code, codeVerifier, redirectUri)
-            ?: return ResponseEntity.badRequest().body(VciErrorResponse("invalid_grant"))
-        return ResponseEntity.ok(
-            TokenResponse(
+            ?: return ResponseEntity.badRequest()
+                .cacheControl(CacheControl.noStore())
+                .body(VciErrorResponse("invalid_grant"))
+
+        return ResponseEntity.ok()
+            .cacheControl(CacheControl.noStore())
+            .body(TokenResponse(
                 accessToken = session.accessToken!!,
-                tokenType = "bearer",
+                tokenType = "DPoP",
                 expiresIn = 300,
                 cNonce = session.cNonce!!,
                 cNonceExpiresIn = 300,
-            )
-        )
+            ))
     }
 
     @PostMapping("/credential")
     @ResponseBody
     suspend fun credential(
         @RequestHeader("Authorization") authorization: String,
+        @RequestHeader("DPoP", required = false) dpopProof: String?,
         @RequestBody request: CredentialRequest,
     ): ResponseEntity<Any> {
-        val token = authorization.removePrefix("Bearer ").trim()
+        val token = extractDpopAccessToken(authorization)
+            ?: return ResponseEntity.status(401).body(VciErrorResponse("invalid_token"))
+
+        val pendingSession = vciIssuanceService.findByAccessToken(token)
+            ?: return ResponseEntity.status(401).body(VciErrorResponse("invalid_token"))
+
+        val boundKeyThumbprint = pendingSession.dpopKeyThumbprint
+            ?: return ResponseEntity.status(401).body(VciErrorResponse("invalid_token"))
+
+        try {
+            dpopProofService.verify(
+                serializedProof = dpopProof,
+                httpMethod = "POST",
+                targetUri = "${vciConfiguration.issuerUrl}/credential",
+                accessToken = token,
+                expectedKeyThumbprint = boundKeyThumbprint,
+            )
+        } catch (error: DpopProofException) {
+            return invalidResourceDpopProof(error)
+        }
+
         val session = vciIssuanceService.consumeAccessToken(token)
             ?: return ResponseEntity.status(401).body(VciErrorResponse("invalid_token"))
 
@@ -148,11 +208,35 @@ class VciController(
         val keyAttestationString = signedJwt.header.toJSONObject()["key_attestation"] as? String
             ?: return null
         val keyAttestation = SignedJWT.parse(keyAttestationString)
+
         val attestedKeys = keyAttestation.jwtClaimsSet.getClaim("attested_keys") as? List<*>
             ?: return null
         val kidIndex = (signedJwt.header.keyID ?: "0").toIntOrNull() ?: 0
         val keyMap = attestedKeys.getOrNull(kidIndex) as? Map<*, *> ?: return null
+
         @Suppress("UNCHECKED_CAST")
         return JWK.parse(keyMap as Map<String, Any>)
+    }
+
+    private fun extractDpopAccessToken(authorization: String): String? {
+        if (!authorization.startsWith("DPoP ", ignoreCase = true)) {
+            return null
+        }
+
+        val token = authorization.substringAfter(' ').trim()
+        return if (token.isEmpty()) null else token
+    }
+
+    private fun invalidDpopProof(error: DpopProofException): ResponseEntity<Any> {
+        return ResponseEntity.badRequest()
+            .cacheControl(CacheControl.noStore())
+            .body(VciErrorResponse("invalid_dpop_proof", error.description))
+    }
+
+    private fun invalidResourceDpopProof(error: DpopProofException): ResponseEntity<Any> {
+        return ResponseEntity.status(401)
+            .header("WWW-Authenticate", "DPoP error=\"invalid_dpop_proof\", algs=\"ES256\"")
+            .cacheControl(CacheControl.noStore())
+            .body(VciErrorResponse("invalid_dpop_proof", error.description))
     }
 }

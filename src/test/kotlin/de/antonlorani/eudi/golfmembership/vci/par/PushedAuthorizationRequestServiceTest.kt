@@ -2,6 +2,9 @@ package de.antonlorani.eudi.golfmembership.vci.par
 
 import de.antonlorani.eudi.golfmembership.vci.CredentialData
 import de.antonlorani.eudi.golfmembership.vci.VciIssuanceService
+import de.antonlorani.eudi.golfmembership.vci.VciConfiguration
+import de.antonlorani.eudi.golfmembership.vci.dpop.DpopProofService
+import de.antonlorani.eudi.golfmembership.vci.dpop.DpopProofTestService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -13,6 +16,8 @@ import java.time.ZoneOffset
 
 class PushedAuthorizationRequestServiceTest {
     private val now = Instant.parse("2026-09-23T10:00:00Z")
+    private val issuerUrl = "https://issuer.example"
+    private val dpopProofTestService = DpopProofTestService()
 
     @Test
     fun `stores a valid request and consumes it once for the same client`() {
@@ -35,6 +40,37 @@ class PushedAuthorizationRequestServiceTest {
 
         assertNull(service.consume(requestUri, "different-client"))
         assertEquals(offer.id, service.consume(requestUri, "wallet-client"))
+    }
+
+    @Test
+    fun `accepts standard authorization code binding with dpop jkt`() {
+        val issuanceService = VciIssuanceService()
+        val offer = issuanceService.createOffer()
+        val service = service(issuanceService, Clock.fixed(now, ZoneOffset.UTC))
+        val keyThumbprint = dpopProofTestService.signingKey.computeThumbprint().toString()
+
+        val requestUri = service.push(
+            request(offer.id).copy(
+                dpopKeyThumbprint = keyThumbprint,
+                dpopProof = null,
+            )
+        )
+
+        assertEquals(offer.id, service.consume(requestUri, "wallet-client"))
+        assertEquals(keyThumbprint, issuanceService.getOffer(offer.id)?.dpopKeyThumbprint)
+    }
+
+    @Test
+    fun `rejects dpop jkt that does not match the proof`() {
+        val issuanceService = VciIssuanceService()
+        val offer = issuanceService.createOffer()
+        val service = service(issuanceService, Clock.fixed(now, ZoneOffset.UTC))
+
+        val error = assertThrows(PushedAuthorizationRequestException::class.java) {
+            service.push(request(offer.id).copy(dpopKeyThumbprint = "another-thumbprint"))
+        }
+
+        assertEquals("invalid_request", error.error)
     }
 
     @Test
@@ -103,7 +139,12 @@ class PushedAuthorizationRequestServiceTest {
     }
 
     private fun service(issuanceService: VciIssuanceService, clock: Clock): PushedAuthorizationRequestService {
-        return PushedAuthorizationRequestService(issuanceService, clock)
+        return PushedAuthorizationRequestService(
+            issuanceService,
+            VciConfiguration(issuerUrl),
+            DpopProofService(clock),
+            clock,
+        )
     }
 
     private fun request(issuerState: String): PushedAuthorizationRequest {
@@ -116,6 +157,8 @@ class PushedAuthorizationRequestServiceTest {
             codeChallengeMethod = "S256",
             scope = CredentialData.SCOPE,
             issuerState = issuerState,
+            dpopKeyThumbprint = null,
+            dpopProof = dpopProofTestService.create("$issuerUrl/par", now),
         )
     }
 }

@@ -49,6 +49,7 @@ class VciMetadataController(
             responseTypesSupported = listOf("code"),
             grantTypesSupported = listOf("authorization_code"),
             codeChallengeMethodsSupported = listOf("S256"),
+            dpopSigningAlgValuesSupported = listOf("ES256"),
         )
     }
 }

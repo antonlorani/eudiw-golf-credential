@@ -9,4 +9,6 @@ data class PushedAuthorizationRequest(
     val codeChallengeMethod: String?,
     val scope: String?,
     val issuerState: String?,
+    val dpopKeyThumbprint: String?,
+    val dpopProof: String?,
 )

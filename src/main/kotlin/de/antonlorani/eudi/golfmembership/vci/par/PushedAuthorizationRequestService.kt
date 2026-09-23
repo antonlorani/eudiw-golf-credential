@@ -2,6 +2,8 @@ package de.antonlorani.eudi.golfmembership.vci.par
 
 import de.antonlorani.eudi.golfmembership.vci.CredentialData
 import de.antonlorani.eudi.golfmembership.vci.VciIssuanceService
+import de.antonlorani.eudi.golfmembership.vci.VciConfiguration
+import de.antonlorani.eudi.golfmembership.vci.dpop.DpopProofService
 import org.springframework.stereotype.Service
 import java.net.URI
 import java.time.Clock
@@ -12,6 +14,8 @@ import java.util.concurrent.ConcurrentHashMap
 @Service
 class PushedAuthorizationRequestService(
     private val issuanceService: VciIssuanceService,
+    private val configuration: VciConfiguration,
+    private val dpopProofService: DpopProofService,
     private val clock: Clock,
 ) {
     private val lifetime = Duration.ofSeconds(60)
@@ -25,7 +29,9 @@ class PushedAuthorizationRequestService(
         val codeChallengeMethod = required(request.codeChallengeMethod, "code_challenge_method")
         val scope = required(request.scope, "scope")
         val issuerState = required(request.issuerState, "issuer_state")
+
         validate(responseType, clientId, redirectUri, codeChallenge, codeChallengeMethod, scope)
+        val dpopKeyThumbprint = resolveDpopKeyThumbprint(request)
 
         val offerExists = issuanceService.setAuthorizationParams(
             offerId = issuerState,
@@ -35,18 +41,20 @@ class PushedAuthorizationRequestService(
             codeChallengeMethod = codeChallengeMethod,
             clientId = clientId,
             scope = scope,
+            dpopKeyThumbprint = dpopKeyThumbprint,
         )
         if (!offerExists) {
             throw PushedAuthorizationRequestException("invalid_request", "Unknown issuer_state")
         }
 
+        removeExpiredRequests()
         val requestUri = "urn:ietf:params:oauth:request_uri:${UUID.randomUUID()}"
         requests[requestUri] = StoredPushedAuthorizationRequest(
             offerId = issuerState,
             clientId = clientId,
             expiresAt = clock.instant().plus(lifetime),
         )
-        removeExpiredRequests()
+
         return requestUri
     }
 
@@ -62,10 +70,37 @@ class PushedAuthorizationRequestService(
             offerId = request.offerId
             null
         }
+
         return offerId
     }
 
     fun expiresInSeconds(): Int = lifetime.seconds.toInt()
+
+    private fun resolveDpopKeyThumbprint(request: PushedAuthorizationRequest): String {
+        if (!request.dpopProof.isNullOrBlank()) {
+            val proof = dpopProofService.verify(
+                serializedProof = request.dpopProof,
+                httpMethod = "POST",
+                targetUri = "${configuration.issuerUrl}/par",
+            )
+
+            if (!request.dpopKeyThumbprint.isNullOrBlank() &&
+                request.dpopKeyThumbprint != proof.keyThumbprint
+            ) {
+                throw PushedAuthorizationRequestException(
+                    "invalid_request",
+                    "dpop_jkt does not match the DPoP proof key",
+                )
+            }
+
+            return proof.keyThumbprint
+        }
+
+        val keyThumbprint = required(request.dpopKeyThumbprint, "dpop_jkt")
+        validateDpopKeyThumbprint(keyThumbprint)
+
+        return keyThumbprint
+    }
 
     private fun validate(
         responseType: String,
@@ -78,18 +113,23 @@ class PushedAuthorizationRequestService(
         if (responseType != "code") {
             throw PushedAuthorizationRequestException("unsupported_response_type", "response_type must be code")
         }
+
         if (clientId.isBlank()) {
             throw PushedAuthorizationRequestException("invalid_request", "client_id must not be blank")
         }
+
         if (!isValidRedirectUri(redirectUri)) {
             throw PushedAuthorizationRequestException("invalid_request", "redirect_uri must be an absolute URI without a fragment")
         }
+
         if (codeChallenge.isBlank()) {
             throw PushedAuthorizationRequestException("invalid_request", "code_challenge must not be blank")
         }
+
         if (codeChallengeMethod != "S256") {
             throw PushedAuthorizationRequestException("invalid_request", "code_challenge_method must be S256")
         }
+
         if (CredentialData.SCOPE !in scope.split(' ').filter { it.isNotBlank() }) {
             throw PushedAuthorizationRequestException("invalid_scope", "scope does not identify a supported credential")
         }
@@ -99,7 +139,20 @@ class PushedAuthorizationRequestService(
         if (value.isNullOrBlank()) {
             throw PushedAuthorizationRequestException("invalid_request", "$parameter is required")
         }
+
         return value
+    }
+
+    private fun validateDpopKeyThumbprint(value: String) {
+        val decoded = try {
+            java.util.Base64.getUrlDecoder().decode(value)
+        } catch (_: IllegalArgumentException) {
+            throw PushedAuthorizationRequestException("invalid_request", "dpop_jkt is not a valid JWK thumbprint")
+        }
+
+        if (decoded.size != 32) {
+            throw PushedAuthorizationRequestException("invalid_request", "dpop_jkt is not a valid JWK thumbprint")
+        }
     }
 
     private fun isValidRedirectUri(value: String): Boolean {

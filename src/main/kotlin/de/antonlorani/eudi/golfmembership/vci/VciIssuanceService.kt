@@ -25,6 +25,7 @@ class VciIssuanceService {
         sessions[id] = session
         insertionOrder.add(id)
         evict()
+
         return session
     }
 
@@ -38,6 +39,7 @@ class VciIssuanceService {
         codeChallengeMethod: String,
         clientId: String,
         scope: String,
+        dpopKeyThumbprint: String,
     ): Boolean {
         var updated = false
         sessions.computeIfPresent(offerId) { _, session ->
@@ -49,8 +51,10 @@ class VciIssuanceService {
                 codeChallengeMethod = codeChallengeMethod,
                 clientId = clientId,
                 scope = scope,
+                dpopKeyThumbprint = dpopKeyThumbprint,
             )
         }
+
         return updated
     }
 
@@ -67,15 +71,27 @@ class VciIssuanceService {
 
     fun exchangeCode(code: String, codeVerifier: String, redirectUri: String): VciSession? {
         val offerId = authCodeIndex.remove(code) ?: return null
+
         return sessions.computeIfPresent(offerId) { _, session ->
             if (session.authorizationCode != code) return@computeIfPresent session
             if (session.redirectUri != redirectUri) return@computeIfPresent session
             if (!verifyPkce(codeVerifier, session.codeChallenge, session.codeChallengeMethod)) return@computeIfPresent session
             val token = UUID.randomUUID().toString()
             val nonce = UUID.randomUUID().toString()
+
             tokenIndex[token] = offerId
             session.copy(accessToken = token, cNonce = nonce)
         }
+    }
+
+    fun findByAuthorizationCode(code: String): VciSession? {
+        val offerId = authCodeIndex[code] ?: return null
+        return sessions[offerId]
+    }
+
+    fun findByAccessToken(token: String): VciSession? {
+        val offerId = tokenIndex[token] ?: return null
+        return sessions[offerId]
     }
 
     fun consumeAccessToken(token: String): VciSession? {
@@ -87,6 +103,7 @@ class VciIssuanceService {
         if (codeChallenge == null || codeChallengeMethod != "S256") return false
         val digest = MessageDigest.getInstance("SHA-256").digest(codeVerifier.toByteArray(Charsets.US_ASCII))
         val computed = Base64.getUrlEncoder().withoutPadding().encodeToString(digest)
+
         return computed == codeChallenge
     }
 
