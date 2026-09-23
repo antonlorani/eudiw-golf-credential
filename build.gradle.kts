@@ -25,6 +25,7 @@ dependencies {
     implementation("eu.europa.ec.eudi:eudi-lib-jvm-sdjwt-kt:0.20.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("org.bouncycastle:bcpkix-jdk18on:1.80")
+    implementation("com.google.zxing:core:3.5.3")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-webmvc-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

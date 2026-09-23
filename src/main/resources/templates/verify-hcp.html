@@ -19,7 +19,10 @@
     </div>
 
     <div class="page__actions">
-      <a th:href="${deeplinkUrl}" class="secondary-cta-button" th:text="${config.secondaryButtonLabel}">Verify</a>
+      <div class="desktop-qr-code">
+        <img th:src="${qrCodeDataUrl}" alt="Scan to verify a credential">
+      </div>
+      <a th:href="${deeplinkUrl}" class="secondary-cta-button mobile-wallet-action" th:text="${config.secondaryButtonLabel}">Verify</a>
     </div>
 
     <footer th:replace="~{fragments/components :: mobileFooter(${config.footerText})}">Footer</footer>

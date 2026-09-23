@@ -39,6 +39,30 @@ body {
   margin-bottom: auto;
 }
 
+.desktop-qr-code {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .mobile-wallet-action {
+    display: none !important;
+  }
+
+  .desktop-qr-code {
+    width: 260px;
+    height: 260px;
+    display: block;
+    overflow: hidden;
+    border-radius: 12px;
+  }
+
+  .desktop-qr-code img {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+}
+
 /* ── Headline ────────────────────────────────────────────── */
 
 .headline {
