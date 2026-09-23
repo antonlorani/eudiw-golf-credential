@@ -14,7 +14,6 @@ class VciIssuanceService {
     private val sessions = ConcurrentHashMap<String, VciSession>()
     private val authCodeIndex = ConcurrentHashMap<String, String>()
     private val tokenIndex = ConcurrentHashMap<String, String>()
-    private val requestUriIndex = ConcurrentHashMap<String, String>()
     private val insertionOrder = ConcurrentLinkedQueue<String>()
 
     fun createOffer(): VciSession {
@@ -39,8 +38,10 @@ class VciIssuanceService {
         codeChallengeMethod: String,
         clientId: String,
         scope: String,
-    ) {
+    ): Boolean {
+        var updated = false
         sessions.computeIfPresent(offerId) { _, session ->
+            updated = true
             session.copy(
                 redirectUri = redirectUri,
                 clientState = clientState,
@@ -50,25 +51,7 @@ class VciIssuanceService {
                 scope = scope,
             )
         }
-    }
-
-    fun pushAuthorizationRequest(
-        offerId: String,
-        redirectUri: String,
-        clientState: String?,
-        codeChallenge: String,
-        codeChallengeMethod: String,
-        clientId: String,
-        scope: String,
-    ): String {
-        setAuthorizationParams(offerId, redirectUri, clientState, codeChallenge, codeChallengeMethod, clientId, scope)
-        val requestUri = "urn:ietf:params:oauth:request_uri:${UUID.randomUUID()}"
-        requestUriIndex[requestUri] = offerId
-        return requestUri
-    }
-
-    fun resolveRequestUri(requestUri: String): String? {
-        return requestUriIndex.remove(requestUri)
+        return updated
     }
 
     fun authorize(offerId: String, selectedCredentialIndex: Int): VciSession? {
@@ -82,10 +65,11 @@ class VciIssuanceService {
         }
     }
 
-    fun exchangeCode(code: String, codeVerifier: String): VciSession? {
+    fun exchangeCode(code: String, codeVerifier: String, redirectUri: String): VciSession? {
         val offerId = authCodeIndex.remove(code) ?: return null
         return sessions.computeIfPresent(offerId) { _, session ->
             if (session.authorizationCode != code) return@computeIfPresent session
+            if (session.redirectUri != redirectUri) return@computeIfPresent session
             if (!verifyPkce(codeVerifier, session.codeChallenge, session.codeChallengeMethod)) return@computeIfPresent session
             val token = UUID.randomUUID().toString()
             val nonce = UUID.randomUUID().toString()

@@ -2,7 +2,11 @@ package de.antonlorani.eudi.golfmembership.vci
 
 import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jwt.SignedJWT
+import de.antonlorani.eudi.golfmembership.vci.par.PushedAuthorizationRequest
+import de.antonlorani.eudi.golfmembership.vci.par.PushedAuthorizationRequestException
+import de.antonlorani.eudi.golfmembership.vci.par.PushedAuthorizationRequestService
 import org.springframework.http.ResponseEntity
+import org.springframework.http.CacheControl
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -18,6 +22,7 @@ class VciController(
     private val vciIssuanceService: VciIssuanceService,
     private val credentialSigningService: CredentialSigningService,
     private val vciConfiguration: VciConfiguration,
+    private val pushedAuthorizationRequestService: PushedAuthorizationRequestService,
 ) {
 
     @PostMapping("/credential-offers")
@@ -49,36 +54,41 @@ class VciController(
     @PostMapping("/par")
     @ResponseBody
     fun pushedAuthorizationRequest(
-        @RequestParam("response_type") responseType: String,
-        @RequestParam("client_id") clientId: String,
-        @RequestParam("redirect_uri") redirectUri: String,
+        @RequestParam("response_type", required = false) responseType: String?,
+        @RequestParam("client_id", required = false) clientId: String?,
+        @RequestParam("redirect_uri", required = false) redirectUri: String?,
         @RequestParam("state", required = false) state: String?,
-        @RequestParam("code_challenge") codeChallenge: String,
-        @RequestParam("code_challenge_method") codeChallengeMethod: String,
-        @RequestParam("scope") scope: String,
+        @RequestParam("code_challenge", required = false) codeChallenge: String?,
+        @RequestParam("code_challenge_method", required = false) codeChallengeMethod: String?,
+        @RequestParam("scope", required = false) scope: String?,
         @RequestParam("issuer_state", required = false) issuerState: String?,
     ): ResponseEntity<Any> {
-        if (issuerState == null) {
-            return ResponseEntity.badRequest().body(VciErrorResponse("invalid_request"))
+        val requestUri = try {
+            pushedAuthorizationRequestService.push(
+                PushedAuthorizationRequest(
+                    responseType = responseType,
+                    clientId = clientId,
+                    redirectUri = redirectUri,
+                    state = state,
+                    codeChallenge = codeChallenge,
+                    codeChallengeMethod = codeChallengeMethod,
+                    scope = scope,
+                    issuerState = issuerState,
+                )
+            )
+        } catch (error: PushedAuthorizationRequestException) {
+            return ResponseEntity.badRequest()
+                .cacheControl(CacheControl.noStore())
+                .body(VciErrorResponse(error.error, error.description))
         }
-        if (CredentialData.SCOPE !in scope.split(' ')) {
-            return ResponseEntity.badRequest().body(VciErrorResponse("invalid_scope"))
-        }
-        val requestUri = vciIssuanceService.pushAuthorizationRequest(
-            offerId = issuerState,
-            redirectUri = redirectUri,
-            clientState = state,
-            codeChallenge = codeChallenge,
-            codeChallengeMethod = codeChallengeMethod,
-            clientId = clientId,
-            scope = scope,
-        )
-        return ResponseEntity.status(201).body(
+        return ResponseEntity.status(201)
+            .cacheControl(CacheControl.noStore())
+            .body(
             PushedAuthorizationResponse(
                 requestUri = requestUri,
-                expiresIn = 60,
+                expiresIn = pushedAuthorizationRequestService.expiresInSeconds(),
             )
-        )
+            )
     }
 
     @PostMapping("/token")
@@ -92,7 +102,7 @@ class VciController(
         if (grantType != "authorization_code") {
             return ResponseEntity.badRequest().body(VciErrorResponse("unsupported_grant_type"))
         }
-        val session = vciIssuanceService.exchangeCode(code, codeVerifier)
+        val session = vciIssuanceService.exchangeCode(code, codeVerifier, redirectUri)
             ?: return ResponseEntity.badRequest().body(VciErrorResponse("invalid_grant"))
         return ResponseEntity.ok(
             TokenResponse(

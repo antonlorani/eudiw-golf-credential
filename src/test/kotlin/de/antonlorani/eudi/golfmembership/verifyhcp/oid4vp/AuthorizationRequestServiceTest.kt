@@ -54,7 +54,7 @@ class AuthorizationRequestServiceTest {
             parameter.substringBefore('=') to URLDecoder.decode(parameter.substringAfter('='), Charsets.UTF_8)
         }
         val requestObject = SignedJWT.parse(service.createRequestObject("session", pending))
-        val certificate = signingMaterialService.verifierSigningMaterial().certificate
+        val certificate = signingMaterialService.verifierSigningMaterial().certificateChain.first()
 
         assertEquals("x509_san_dns:localhost", parameters["client_id"])
         assertEquals("https://localhost:8443/oid4vp/requests/session", parameters["request_uri"])
