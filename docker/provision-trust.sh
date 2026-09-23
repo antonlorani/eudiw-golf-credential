@@ -3,8 +3,20 @@ set -eu
 
 script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 certs_dir="$script_dir/certs"
-oid4vp_client_id="${OID4VP_CLIENT_ID:-localhost}"
-keystore_password="${KEYSTORE_PASSWORD:-changeit}"
+public_host="${1:-}"
+keystore_password=changeit
+
+if [ -z "$public_host" ]; then
+    echo "Usage: $0 <host>" >&2
+    exit 1
+fi
+
+case "$public_host" in
+    *://*|*:*|*/*)
+        echo "Specify only a host, without a scheme, port, or path" >&2
+        exit 1
+        ;;
+esac
 
 for certificate_file in trust-root-ca.crt trust-root-ca.der issuer.p12 oid4vp-verifier.p12; do
     if [ -e "$certs_dir/$certificate_file" ]; then
@@ -78,6 +90,12 @@ create_identity() (
 
 create_root
 create_identity issuer "National Golf Association" issuer
-create_identity oid4vp-verifier "Golf Booking Platform" oid4vp-verifier "DNS:$oid4vp_client_id"
+create_identity oid4vp-verifier "Golf Booking Platform" oid4vp-verifier "DNS:$public_host"
+
+cat > "$script_dir/.env" <<EOF
+VCI_ISSUER_URL=https://$public_host:8443
+OID4VP_VERIFIER_URL=https://$public_host:8443
+OID4VP_CLIENT_ID=$public_host
+EOF
 
 echo "Certificates written to $certs_dir"

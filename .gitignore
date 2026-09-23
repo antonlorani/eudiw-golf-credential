@@ -6,3 +6,4 @@ build/
 .kotlin/
 docker/certs/*
 !docker/certs/.gitkeep
+docker/.env

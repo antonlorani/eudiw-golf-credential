@@ -3,25 +3,25 @@ set -eu
 
 script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 certs_dir="$script_dir/certs"
-server_name="${SERVER_NAME:-localhost}"
-keystore_password="${KEYSTORE_PASSWORD:-changeit}"
+tls_host="${1:-localhost}"
+keystore_password=changeit
 
 if [ -e "$certs_dir/server.p12" ] || [ -e "$certs_dir/server.crt" ]; then
     echo "Refusing to overwrite existing TLS certificates in $certs_dir" >&2
     exit 1
 fi
 
-case "$server_name" in
+case "$tls_host" in
     *:*)
-        echo "SERVER_NAME must not include a port" >&2
+        echo "The TLS host must not include a port" >&2
         exit 1
         ;;
 esac
 
-if printf '%s' "$server_name" | grep -Eq '^[0-9a-fA-F:.]+$'; then
-    subject_alt_name="IP:$server_name"
+if printf '%s' "$tls_host" | grep -Eq '^[0-9]+(\.[0-9]+){3}$'; then
+    subject_alt_name="IP:$tls_host"
 else
-    subject_alt_name="DNS:$server_name"
+    subject_alt_name="DNS:$tls_host"
 fi
 
 temporary_dir=$(mktemp -d)
@@ -32,7 +32,7 @@ openssl req -x509 -newkey rsa:2048 -sha256 -nodes \
     -keyout "$temporary_dir/server.key" \
     -out "$certs_dir/server.crt" \
     -days 825 \
-    -subj "/CN=$server_name" \
+    -subj "/CN=$tls_host" \
     -addext "subjectAltName=$subject_alt_name" \
     -addext "keyUsage=digitalSignature,keyEncipherment" \
     -addext "extendedKeyUsage=serverAuth"
