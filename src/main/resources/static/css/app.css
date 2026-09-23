@@ -1,15 +1,27 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+html {
+  min-height: 100%;
+  background-color: var(--page-background, #F3F8E9);
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Display', system-ui, sans-serif;
-  min-height: 100vh;
+  min-height: 100%;
+  min-height: 100dvh;
+  background-color: var(--page-background, #F3F8E9);
+  overflow-x: hidden;
 }
+
+.theme-green { --page-background: #F3F8E9; }
+.theme-blue  { --page-background: #D8E2F5; }
 
 /* ── Page Layout ─────────────────────────────────────────── */
 
 .page {
   width: 100%;
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
