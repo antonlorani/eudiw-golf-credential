@@ -18,8 +18,13 @@ class CredentialProofService(
 ) {
     private val proofLifetime = Duration.ofMinutes(5)
     private val futureClockSkew = Duration.ofSeconds(60)
+    private val maxProofLength = 16 * 1024
 
     fun verify(serializedProof: String, expectedClientId: String?): JWK {
+        if (serializedProof.length > maxProofLength) {
+            invalid("The credential proof exceeds the maximum supported size")
+        }
+
         val proof = parse(serializedProof, "The credential proof is not a valid signed JWT")
         validateHeader(proof)
         val holderKey = holderKey(proof)

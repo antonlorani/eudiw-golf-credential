@@ -79,6 +79,11 @@ class CredentialProofServiceTest {
         assertInvalid(serialized, "iss")
     }
 
+    @Test
+    fun `rejects a proof larger than sixteen kibibytes`() {
+        assertInvalid("x".repeat(16 * 1024 + 1), "maximum supported size")
+    }
+
     private fun proof(
         nonce: String,
         audience: String = issuerUrl,

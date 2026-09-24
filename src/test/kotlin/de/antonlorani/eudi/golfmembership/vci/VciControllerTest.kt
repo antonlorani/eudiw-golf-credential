@@ -13,6 +13,7 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
+import java.time.Instant
 
 class VciControllerTest {
     private val issuanceService = mock(VciIssuanceService::class.java)
@@ -109,6 +110,8 @@ class VciControllerTest {
         return VciSession(
             id = "offer",
             credentialConfigurationIds = listOf(CredentialData.CONFIGURATION_ID),
+            expiresAt = Instant.MAX,
+            offerExpiresAt = Instant.MAX,
             clientId = "wallet-client",
             selectedCredentialIndex = 0,
             accessToken = "token",

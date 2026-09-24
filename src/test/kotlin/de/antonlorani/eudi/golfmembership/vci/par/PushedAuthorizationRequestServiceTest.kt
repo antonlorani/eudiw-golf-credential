@@ -21,7 +21,7 @@ class PushedAuthorizationRequestServiceTest {
 
     @Test
     fun `stores a valid request and consumes it once for the same client`() {
-        val issuanceService = VciIssuanceService()
+        val issuanceService = issuanceService()
         val offer = issuanceService.createOffer()
         val service = service(issuanceService, Clock.fixed(now, ZoneOffset.UTC))
 
@@ -33,7 +33,7 @@ class PushedAuthorizationRequestServiceTest {
 
     @Test
     fun `does not consume a request when the client does not match`() {
-        val issuanceService = VciIssuanceService()
+        val issuanceService = issuanceService()
         val offer = issuanceService.createOffer()
         val service = service(issuanceService, Clock.fixed(now, ZoneOffset.UTC))
         val requestUri = service.push(request(offer.id))
@@ -44,7 +44,7 @@ class PushedAuthorizationRequestServiceTest {
 
     @Test
     fun `accepts standard authorization code binding with dpop jkt`() {
-        val issuanceService = VciIssuanceService()
+        val issuanceService = issuanceService()
         val offer = issuanceService.createOffer()
         val service = service(issuanceService, Clock.fixed(now, ZoneOffset.UTC))
         val keyThumbprint = dpopProofTestService.signingKey.computeThumbprint().toString()
@@ -62,7 +62,7 @@ class PushedAuthorizationRequestServiceTest {
 
     @Test
     fun `rejects dpop jkt that does not match the proof`() {
-        val issuanceService = VciIssuanceService()
+        val issuanceService = issuanceService()
         val offer = issuanceService.createOffer()
         val service = service(issuanceService, Clock.fixed(now, ZoneOffset.UTC))
 
@@ -75,7 +75,7 @@ class PushedAuthorizationRequestServiceTest {
 
     @Test
     fun `rejects an expired request`() {
-        val issuanceService = VciIssuanceService()
+        val issuanceService = issuanceService()
         val offer = issuanceService.createOffer()
         val clock = MutableClock(now, ZoneOffset.UTC)
         val service = service(issuanceService, clock)
@@ -88,7 +88,7 @@ class PushedAuthorizationRequestServiceTest {
 
     @Test
     fun `rejects an unsupported response type`() {
-        val issuanceService = VciIssuanceService()
+        val issuanceService = issuanceService()
         val offer = issuanceService.createOffer()
         val service = service(issuanceService, Clock.fixed(now, ZoneOffset.UTC))
 
@@ -101,7 +101,7 @@ class PushedAuthorizationRequestServiceTest {
 
     @Test
     fun `rejects a missing required parameter`() {
-        val issuanceService = VciIssuanceService()
+        val issuanceService = issuanceService()
         val offer = issuanceService.createOffer()
         val service = service(issuanceService, Clock.fixed(now, ZoneOffset.UTC))
 
@@ -115,7 +115,7 @@ class PushedAuthorizationRequestServiceTest {
 
     @Test
     fun `rejects an unknown issuer state`() {
-        val issuanceService = VciIssuanceService()
+        val issuanceService = issuanceService()
         val service = service(issuanceService, Clock.fixed(now, ZoneOffset.UTC))
 
         val error = assertThrows(PushedAuthorizationRequestException::class.java) {
@@ -127,7 +127,7 @@ class PushedAuthorizationRequestServiceTest {
 
     @Test
     fun `rejects a code challenge method other than S256`() {
-        val issuanceService = VciIssuanceService()
+        val issuanceService = issuanceService()
         val offer = issuanceService.createOffer()
         val service = service(issuanceService, Clock.fixed(now, ZoneOffset.UTC))
 
@@ -145,6 +145,10 @@ class PushedAuthorizationRequestServiceTest {
             DpopProofService(clock),
             clock,
         )
+    }
+
+    private fun issuanceService(): VciIssuanceService {
+        return VciIssuanceService(Clock.fixed(now, ZoneOffset.UTC))
     }
 
     private fun request(issuerState: String): PushedAuthorizationRequest {
