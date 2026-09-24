@@ -5,24 +5,12 @@ import tools.jackson.databind.annotation.JsonNaming
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class CredentialRequest(
-    val format: String? = null,
-    val proof: Proof? = null,
+    val credentialConfigurationId: String? = null,
     val proofs: Proofs? = null,
     val credentialIdentifier: String? = null,
 ) {
 
-    fun isBatch(): Boolean = proofs != null
-
-    fun extractProofJwt(): String? {
-        proof?.jwt?.let { return it }
-        return proofs?.jwt?.singleOrNull()
-    }
-
-    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
-    data class Proof(
-        val proofType: String? = null,
-        val jwt: String? = null,
-    )
+    fun extractSingleProofJwt(): String? = proofs?.jwt?.singleOrNull()
 
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
     data class Proofs(

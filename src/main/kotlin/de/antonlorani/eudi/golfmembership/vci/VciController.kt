@@ -180,7 +180,13 @@ class VciController(
             return invalidResourceDpopProof(error)
         }
 
-        val proofJwt = request.extractProofJwt()
+        if (request.credentialConfigurationId != CredentialData.CONFIGURATION_ID ||
+            request.credentialIdentifier != null
+        ) {
+            return credentialError(400, "unknown_credential_configuration")
+        }
+
+        val proofJwt = request.extractSingleProofJwt()
             ?: return credentialError(400, "invalid_proof")
 
         val holderKey = try {
@@ -200,15 +206,9 @@ class VciController(
         val credentialData = CredentialData.ALL[session.selectedCredentialIndex!!]
         val sdJwtVc = credentialSigningService.sign(credentialData, holderKey)
 
-        return if (request.isBatch()) {
-            ResponseEntity.ok()
-                .cacheControl(CacheControl.noStore())
-                .body(BatchCredentialResponse(listOf(CredentialResponse(sdJwtVc))))
-        } else {
-            ResponseEntity.ok()
-                .cacheControl(CacheControl.noStore())
-                .body(CredentialResponse(sdJwtVc))
-        }
+        return ResponseEntity.ok()
+            .cacheControl(CacheControl.noStore())
+            .body(BatchCredentialResponse(listOf(CredentialResponse(sdJwtVc))))
     }
 
     @PostMapping("/nonce")
