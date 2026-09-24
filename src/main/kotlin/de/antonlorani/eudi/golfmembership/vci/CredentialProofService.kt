@@ -47,52 +47,14 @@ class CredentialProofService(
     }
 
     private fun holderKey(proof: SignedJWT): ECKey {
-        proof.header.jwk?.let { key ->
-            return try {
-                key.toECKey()
-            } catch (_: Exception) {
-                invalid("The credential proof jwk must be an EC key")
-            }
-        }
+        val key = proof.header.jwk
+            ?: invalid("The credential proof must contain a public jwk")
 
-        val serializedAttestation = proof.header.toJSONObject()["key_attestation"] as? String
-            ?: invalid("The credential proof must contain a public jwk or key_attestation")
-        val attestation = parse(serializedAttestation, "The key attestation is not a valid signed JWT")
-        if (attestation.header.type != JOSEObjectType("key-attestation+jwt")) {
-            invalid("The key attestation typ must be key-attestation+jwt")
-        }
-
-        if (attestation.header.algorithm != JWSAlgorithm.ES256) {
-            invalid("The key attestation algorithm must be ES256")
-        }
-
-        val keys = try {
-            attestation.jwtClaimsSet.getClaim("attested_keys") as? List<*>
+        return try {
+            key.toECKey()
         } catch (_: Exception) {
-            null
-        } ?: invalid("The key attestation must contain attested_keys")
-
-        if (keys.isEmpty()) {
-            invalid("The key attestation attested_keys must not be empty")
+            invalid("The credential proof jwk must be an EC key")
         }
-
-        val index = proof.header.keyID?.toIntOrNull()
-            ?: invalid("A credential proof using key_attestation must identify an attested key with kid")
-        val keyMap = keys.getOrNull(index) as? Map<*, *>
-            ?: invalid("The credential proof kid does not identify an attested key")
-
-        @Suppress("UNCHECKED_CAST")
-        val key = try {
-            JWK.parse(keyMap as Map<String, Any>).toECKey()
-        } catch (_: Exception) {
-            invalid("The selected attested key must be an EC public key")
-        }
-
-        if (key.isPrivate) {
-            invalid("The key attestation must not contain private key material")
-        }
-
-        return key
     }
 
     private fun validateSignature(proof: SignedJWT, key: ECKey) {
