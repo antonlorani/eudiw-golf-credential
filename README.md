@@ -1,6 +1,6 @@
 ![EUDI Golf Membership Credential demo](docs/assets/dyou-eaa-golf-demo.gif)
 
-TL;DR This project is a practical demonstration of issuance (OID4VCI) and verification (OID4VP) of a custom credential (SD-JWT DC) through the "d-you" EUDI Wallet in the area of golf membership credentials.
+TL;DR This project is a practical demonstration of issuance (OID4VCI) and verification (OID4VP) of a custom credential (SD-JWT VC) through the "d-you" EUDI Wallet in the area of golf membership credentials.
 
 ## Abstract
 
@@ -12,14 +12,14 @@ This EUDIW use case addresses that gap by issuing golf membership credentials to
 
 ![System Design](docs/assets/system_design.svg)
 
-The following SD-JWT VC represents a golf membership credential, it supports selective-disclosure for common queries such as HCP >= 36 checks, which is a very common threshold among golf course HCP restrictions.
+The following SD-JWT VC represents a golf membership credential, it supports selective-disclosure for common queries such as HCP ≤ 36 checks, which is a very common threshold among golf course HCP restrictions.
 
 ```json
 {
   "iss": "https://localhost:8443",
   "iat": 1790092800,
   "exp": 1821628800,
-  "vct": "urn:eu.europa.ec.eudi:golf_membership:1",
+  "vct": "urn:de.antonlorani:golf_membership:1",
   "cnf": {
     "jwk": {
       "kty": "EC",

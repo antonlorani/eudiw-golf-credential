@@ -12,7 +12,7 @@ data class CredentialData(
     val spoofed: Boolean = false,
 ) {
     companion object {
-        const val VCT = "urn:eu.europa.ec.eudi:golf_membership:1"
+        const val VCT = "urn:de.antonlorani:golf_membership:1"
         const val CONFIGURATION_ID = "golf_membership_credential"
         const val SCOPE = "golf_membership_credential"
         const val FORMAT = "dc+sd-jwt"
