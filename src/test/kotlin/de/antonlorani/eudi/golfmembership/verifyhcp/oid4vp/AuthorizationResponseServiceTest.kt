@@ -70,6 +70,40 @@ class AuthorizationResponseServiceTest {
     }
 
     @Test
+    fun `course below 36 rejects an hcp above its maximum despite the boolean predicate`() {
+        assertEquals(
+            DemoState.VerificationRejected::class.java,
+            courseOutcome(28.0, ValidatedPresentation(isHcpBelow37 = true, hcpIndex = 35.0))?.javaClass,
+        )
+    }
+
+    @Test
+    fun `course below 36 accepts an hcp at its maximum`() {
+        assertEquals(
+            DemoState.VerificationAccepted::class.java,
+            courseOutcome(28.0, ValidatedPresentation(isHcpBelow37 = null, hcpIndex = 28.0))?.javaClass,
+        )
+    }
+
+    private fun courseOutcome(maximumHcp: Double, presentation: ValidatedPresentation): DemoState? {
+        val sessions = DemoFlowService(Clock.fixed(now, ZoneOffset.UTC))
+        val session = sessions.createSession()
+        sessions.startVerification(
+            session.id,
+            BookingSelection.GolfCourse("course", maximumHcp),
+            "nonce",
+            "state",
+            now.plusSeconds(60),
+        )
+        val service = AuthorizationResponseService(
+            sessions = sessions,
+            vpTokenValidationService = { _, _ -> ValidPresentationResult(presentation) },
+        )
+        service.process(session.id, "state", "vp-token")
+        return sessions.getSession(session.id)?.state
+    }
+
+    @Test
     fun `course above 36 accepts a valid credential without disclosed claims`() {
         val sessions = DemoFlowService(Clock.fixed(now, ZoneOffset.UTC))
         val session = sessions.createSession()

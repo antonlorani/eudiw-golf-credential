@@ -60,9 +60,12 @@ class AuthorizationResponseService(
     ): Boolean {
         if (result !is ValidPresentationResult) return false
         return when (selection) {
-            is BookingSelection.GolfCourse ->
-                selection.maximumHcp > 36.0 ||
-                    result.presentation.isHcpBelow37 == true
+            is BookingSelection.GolfCourse -> when {
+                selection.maximumHcp > 36.0 -> true
+                selection.maximumHcp == 36.0 -> result.presentation.isHcpBelow37 == true
+                else -> result.presentation.hcpIndex != null &&
+                    result.presentation.hcpIndex <= selection.maximumHcp
+            }
             is BookingSelection.Tournament ->
                 result.presentation.hcpIndex != null &&
                     result.presentation.hcpIndex <= selection.maximumHcp

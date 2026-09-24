@@ -34,8 +34,10 @@ class AuthorizationRequestService(
     fun createRequestObject(sessionId: String, pending: DemoState.PendingVerification): String {
         val signingMaterial = signingMaterialService.verifierSigningMaterial()
         val requestedClaim = when (val selection = pending.selection) {
-            is BookingSelection.GolfCourse -> {
-                if (selection.maximumHcp <= 36.0) "is_hcp_below_37" else null
+            is BookingSelection.GolfCourse -> when {
+                selection.maximumHcp > 36.0 -> null
+                selection.maximumHcp == 36.0 -> "is_hcp_below_37"
+                else -> "hcp_index"
             }
             is BookingSelection.Tournament -> "hcp_index"
         }

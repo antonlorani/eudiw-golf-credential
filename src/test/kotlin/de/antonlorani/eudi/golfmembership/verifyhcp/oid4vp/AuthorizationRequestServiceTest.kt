@@ -73,6 +73,49 @@ class AuthorizationRequestServiceTest {
         assertTrue(certificate.hasDnsName("localhost"))
     }
 
+    @Test
+    fun `course at 36 requests only the boolean predicate`() {
+        assertEquals(listOf(listOf("is_hcp_below_37")), requestedClaimPaths(BookingSelection.GolfCourse("course", 36.0)))
+    }
+
+    @Test
+    fun `course below 36 requests the exact hcp`() {
+        assertEquals(listOf(listOf("hcp_index")), requestedClaimPaths(BookingSelection.GolfCourse("course", 28.0)))
+    }
+
+    @Test
+    fun `course above 36 requests no claims`() {
+        assertEquals(null, requestedClaimPaths(BookingSelection.GolfCourse("course", 54.0)))
+    }
+
+    private fun requestedClaimPaths(selection: BookingSelection): List<*>? {
+        val service = AuthorizationRequestService(
+            Oid4vpConfiguration("https://localhost:8443", "localhost"),
+            VerifierSigningMaterialService(
+                keyStoreResource = FileSystemResource("docker/certs/oid4vp-verifier.p12"),
+                keyStorePassword = "changeit",
+                keyAlias = "oid4vp-verifier",
+            ),
+            VerifierResponseEncryptionKey(
+                ECKeyGenerator(Curve.P_256)
+                    .keyUse(KeyUse.ENCRYPTION)
+                    .algorithm(JWEAlgorithm.ECDH_ES)
+                    .generate()
+            ),
+            jacksonObjectMapper(),
+        )
+        val pending = DemoState.PendingVerification(
+            selection = selection,
+            nonce = "nonce",
+            responseState = "state",
+            expiresAt = Instant.now().plusSeconds(60),
+        )
+        val requestObject = SignedJWT.parse(service.createRequestObject("session", pending))
+        val dcql = requestObject.jwtClaimsSet.getJSONObjectClaim("dcql_query")
+        val credential = (dcql["credentials"] as List<*>).single() as Map<*, *>
+        return (credential["claims"] as List<*>?)?.map { (it as Map<*, *>)["path"] }
+    }
+
     private fun X509Certificate.hasDnsName(expected: String): Boolean =
         subjectAlternativeNames.orEmpty().any { alternativeName ->
             alternativeName[0] == 2 && alternativeName[1] == expected
