@@ -47,6 +47,7 @@ data class CredentialIssuerMetadata(
     )
 
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     data class ProofTypeSupported(
         val proofSigningAlgValuesSupported: List<String>,
         val keyAttestationsRequired: KeyAttestationsRequired? = null,
